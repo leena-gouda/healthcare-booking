@@ -135,7 +135,7 @@ const blogPosts = [
     author: 'Dr. Sarah Mitchell',
     image: 'https://images.unsplash.com/photo-1628348068343-c6a848d2b6dd?w=600',
     excerpt: 'Heart disease remains the leading cause of death worldwide. Learn why annual checkups can save your life and what to expect during a cardiac screening.',
-    content: 'Heart disease is often called a silent killer because many people have no symptoms until a major event like a heart attack occurs. Regular checkups allow doctors to catch warning signs early before they become life-threatening.',
+    content: 'Heart disease is often called a silent killer because many people have no symptoms until a major event like a heart attack occurs. Regular checkups allow doctors to catch warning signs early — high blood pressure, elevated cholesterol, or irregular heartbeat — before they become life-threatening. During a cardiac screening, your doctor will measure your blood pressure, run an ECG, and review your lifestyle factors. The whole process takes under an hour but can add years to your life. Many patients who discover heart problems early are able to manage them entirely through lifestyle changes — improved diet, regular exercise, and stress reduction. Those who wait until symptoms appear often face more serious interventions. The recommendation from most cardiologists is to begin annual heart screenings at age 40, or earlier if you have a family history of heart disease, high blood pressure, or diabetes. Do not wait for symptoms to appear. The best time to check your heart health is when you feel completely fine.',
     readTime: 5,
   },
   {
@@ -143,8 +143,8 @@ const blogPosts = [
     category: 'Mental Health',
     author: 'Dr. Robert Andersen',
     image: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?w=600',
-    excerpt: 'Anxiety affects millions of people globally. Here are evidence-based strategies that actually work.',
-    content: 'Anxiety is one of the most common mental health conditions, yet it remains widely misunderstood. Evidence-based treatments include cognitive behavioral therapy, mindfulness meditation, and in some cases medication.',
+    excerpt: 'Anxiety affects millions of people globally. Here are evidence-based strategies that actually work, from breathing techniques to cognitive reframing.',
+    content: 'Anxiety is one of the most common mental health conditions, yet it remains widely misunderstood. Unlike stress, which is triggered by external pressures, anxiety can persist even when there is no obvious threat. Evidence-based treatments include cognitive behavioral therapy (CBT), mindfulness meditation, and in some cases medication. Simple daily habits like consistent sleep schedules, regular exercise, and limiting caffeine can make a significant difference in managing symptoms. One of the most effective immediate techniques is diaphragmatic breathing — breathing deeply into your belly rather than your chest. This activates the parasympathetic nervous system and signals to your brain that you are safe. Practice this for five minutes daily and you will notice a meaningful reduction in baseline anxiety within two weeks. Another powerful tool is cognitive reframing — the practice of identifying anxious thoughts and questioning their validity. Ask yourself: is this thought based on facts or assumptions? What is the realistic worst case scenario, and could I handle it? Most people find that when they examine their anxious thoughts closely, those thoughts do not hold up to scrutiny.',
     readTime: 4,
   },
   {
@@ -152,8 +152,8 @@ const blogPosts = [
     category: 'Dermatology',
     author: 'Dr. Layla Hassan',
     image: 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=600',
-    excerpt: 'With hundreds of skincare products on the market, a dermatologist breaks down exactly what your skin actually needs.',
-    content: 'The skincare industry is worth billions, but most people only need three to four products for healthy skin. A gentle cleanser, a moisturizer, sunscreen with at least SPF 30, and if needed, a targeted treatment.',
+    excerpt: 'With hundreds of skincare products on the market, it can be overwhelming. A dermatologist breaks down exactly what your skin actually needs.',
+    content: 'The skincare industry is worth billions, but most people only need three to four products for healthy skin. A gentle cleanser, a moisturizer suited to your skin type, sunscreen with at least SPF 30, and if needed, a targeted treatment like retinol or niacinamide. The most common mistake people make is over-washing or using too many active ingredients at once, which strips the skin barrier and causes irritation. Less is almost always more. Sunscreen is the single most impactful product you can use. More than 80 percent of visible skin aging — wrinkles, dark spots, uneven texture — is caused by UV exposure, not by the natural aging process. A broad-spectrum SPF 30 or higher applied every morning will do more for your skin than any anti-aging serum on the market. For those dealing with acne, the most evidence-backed ingredients are benzoyl peroxide, salicylic acid, and adapalene. Avoid picking or popping pimples as this introduces bacteria and dramatically increases the chance of scarring. Consistency matters more than the specific products you choose — a simple routine followed daily will always outperform an elaborate routine followed inconsistently.',
     readTime: 6,
   },
   {
@@ -161,8 +161,8 @@ const blogPosts = [
     category: 'Nutrition',
     author: 'Dr. Michael Chen',
     image: 'https://images.unsplash.com/photo-1490645935967-10de6ba17061?w=600',
-    excerpt: 'What you eat directly impacts your bone density and joint health.',
-    content: 'Calcium and vitamin D are well-known for bone health, but magnesium, vitamin K2, and collagen-supporting nutrients also play critical roles.',
+    excerpt: 'What you eat directly impacts your bone density and joint health. Discover the foods and supplements that make the biggest difference.',
+    content: 'Calcium and vitamin D are well-known for bone health, but they are just the beginning. Magnesium, vitamin K2, and collagen-supporting nutrients like vitamin C also play critical roles. Dairy products, leafy greens, fatty fish, and nuts are your best food sources. Avoiding excessive alcohol and smoking is equally important, as both directly reduce bone density over time. Weight-bearing exercise like walking, dancing, or resistance training stimulates bone formation and should be part of every adult routine. For joint health specifically, omega-3 fatty acids found in fatty fish like salmon, sardines, and mackerel have strong anti-inflammatory properties that can reduce joint pain and stiffness. Glucosamine and chondroitin supplements have mixed evidence but some patients find meaningful benefit, particularly for knee osteoarthritis. Staying well hydrated is also essential — cartilage is approximately 80 percent water, and chronic dehydration accelerates cartilage breakdown. Aim for at least 8 glasses of water daily, more if you are physically active. The best dietary pattern for bone and joint health overall is the Mediterranean diet — rich in vegetables, legumes, whole grains, fish, and olive oil, with limited processed foods and red meat.',
     readTime: 5,
   },
   {
@@ -170,8 +170,8 @@ const blogPosts = [
     category: 'Pediatrics',
     author: 'Dr. Fatima Al-Rashid',
     image: 'https://images.unsplash.com/photo-1576765608622-067973a79f53?w=600',
-    excerpt: 'New parents often wonder what symptoms are serious and what can wait.',
-    content: 'Many parents panic at the first sign of a fever, while others wait too long when something is genuinely urgent. Key indicators that require immediate attention include fever above 38C in infants under 3 months.',
+    excerpt: 'New parents often wonder what symptoms are serious and what can wait. A pediatrician shares the definitive guide to knowing when to seek care.',
+    content: 'Many parents panic at the first sign of a fever, while others wait too long when something is genuinely urgent. The key indicators that require immediate attention include fever above 38 degrees Celsius in infants under 3 months, difficulty breathing, persistent vomiting or diarrhea leading to dehydration, rashes with fever, and any loss of consciousness. Routine wellness visits on the other hand should happen at 1, 2, 4, 6, 9, 12, 15, 18, and 24 months, then annually. These visits track development and ensure vaccinations are up to date. Fever in older children is often not dangerous on its own — what matters more is how the child looks and behaves. A child with a 39 degree fever who is alert, drinking fluids, and playing is usually fine to monitor at home. A child with a 38 degree fever who is lethargic, refusing all fluids, and difficult to wake needs immediate attention. Trust your instincts as a parent. You know your child better than anyone, and if something feels wrong, it is always better to seek reassurance from a professional than to wait and worry.',
     readTime: 7,
   },
   {
@@ -179,8 +179,8 @@ const blogPosts = [
     category: 'Neurology',
     author: 'Dr. James Okafor',
     image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?w=600',
-    excerpt: 'Not all headaches are the same. Learn how to tell the difference.',
-    content: 'A migraine is not just a bad headache, it is a neurological condition with distinct phases. The prodrome phase can begin up to 48 hours before pain starts.',
+    excerpt: 'Not all headaches are the same. Learn how to tell the difference and when it is time to see a neurologist.',
+    content: 'A migraine is not just a bad headache — it is a neurological condition with distinct phases. The prodrome phase can begin up to 48 hours before pain starts, causing mood changes, food cravings, and neck stiffness. The aura phase, experienced by about 25 percent of migraine sufferers, involves visual disturbances like zigzag lines or blind spots. The headache phase itself typically lasts 4 to 72 hours and is characterized by pulsating pain, usually on one side, accompanied by nausea and sensitivity to light and sound. If you experience more than 4 migraines per month, preventive treatment is worth discussing with a neurologist. Common triggers include hormonal changes, certain foods like aged cheese and processed meats, alcohol especially red wine, changes in sleep patterns, and stress. Keeping a headache diary for one month — noting when headaches occur, their duration, severity, and potential triggers — is one of the most useful things you can do before your first neurology appointment. Over-the-counter pain medications can help with occasional migraines but should not be taken more than 10 days per month, as overuse paradoxically leads to more frequent headaches, a condition known as medication overuse headache.',
     readTime: 6,
   },
 ];

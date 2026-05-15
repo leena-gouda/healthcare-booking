@@ -105,7 +105,7 @@ useEffect(() => {
             <div
               key={post.id}
               style={styles.card}
-              onClick={() => navigate(`/blog/${post.id}`)}
+              onClick={() => navigate(`/blog/${post._id}`)}
             >
               <img
                 src={post.image}

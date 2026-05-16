@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 function Home() {
@@ -18,11 +18,21 @@ function Home() {
     { icon: '👶', title: 'Pediatrics', desc: 'Dedicated healthcare for children of all ages.' },
   ];
 
-  const doctors = [
-    { name: 'Dr. Sarah Mitchell', specialty: 'Cardiologist', rating: 4.9, image: 'https://randomuser.me/api/portraits/women/44.jpg' },
-    { name: 'Dr. James Carter', specialty: 'Neurologist', rating: 4.8, image: 'https://randomuser.me/api/portraits/men/32.jpg' },
-    { name: 'Dr. Emily Chen', specialty: 'Pediatrician', rating: 4.9, image: 'https://randomuser.me/api/portraits/women/68.jpg' },
-  ];
+  const [doctors, setDoctors] = useState([]);
+  const [loadingDoctors, setLoadingDoctors] = useState(true);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/doctors')
+      .then(res => res.json())
+      .then(data => {
+        setDoctors(data.slice(0, 3));
+        setLoadingDoctors(false);
+      })
+      .catch(err => {
+        console.error('Error fetching doctors:', err);
+        setLoadingDoctors(false);
+      });
+  }, []);
 
   return (
     <div>
@@ -128,20 +138,29 @@ function Home() {
             <p className="section-subtitle">Trusted by thousands of patients</p>
           </div>
           <div className="row g-4 justify-content-center">
-            {doctors.map((doc, i) => (
+            {loadingDoctors ? (
+              <div className="text-center py-4">
+                <p style={{ color: '#64748B', fontSize: '16px' }}>Loading doctors...</p>
+              </div>
+            ) : doctors.map((doc, i) => (
               <div key={i} className="col-12 col-sm-6 col-lg-4">
                 <div className="doctor-card">
-                  <img src={doc.image} alt={doc.name} className="doctor-img" />
+                  <img
+                    src={doc.image || `https://randomuser.me/api/portraits/${doc.gender === 'female' ? 'women' : 'men'}/${i + 10}.jpg`}
+                    alt={doc.name}
+                    className="doctor-img"
+                  />
                   <h3 className="doctor-name">{doc.name}</h3>
                   <p className="doctor-specialty">{doc.specialty}</p>
-                  <p className="doctor-rating">⭐ {doc.rating}</p>
-                  <Link to="/doctors" className="hero-btn-primary" style={{ fontSize: '14px', padding: '10px 24px' }}>
+                  <p className="doctor-rating">⭐ {doc.rating || 'New'}</p>
+                  <Link to={`/doctors/${doc._id}`} className="hero-btn-primary" style={{ fontSize: '14px', padding: '10px 24px' }}>
                     View Profile
                   </Link>
                 </div>
               </div>
             ))}
           </div>
+
           <div className="text-center mt-5">
             <Link to="/doctors" className="btn-outline-primary-custom">
               View All Doctors →

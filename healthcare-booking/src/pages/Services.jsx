@@ -59,147 +59,96 @@ function Services() {
     },
   ];
 
+  const whyUs = [
+    { icon: '🏆', title: 'Award Winning', desc: 'Recognized for excellence in patient care' },
+    { icon: '👨‍⚕️', title: '500+ Specialists', desc: 'Board-certified doctors in every field' },
+    { icon: '🕐', title: '24/7 Available', desc: 'Round the clock emergency services' },
+    { icon: '💳', title: 'Insurance Accepted', desc: 'We work with all major providers' },
+  ];
+
   return (
-    <div style={{ fontFamily: 'Segoe UI, sans-serif', color: '#1E293B' }}>
+    <div>
 
       {/* PAGE HEADER */}
-      <section style={{
-        background: 'linear-gradient(135deg, #1e40af 0%, #2563EB 100%)',
-        color: 'white',
-        padding: '80px 40px',
-        textAlign: 'center',
-      }}>
-        <p style={{ fontSize: '13px', letterSpacing: '3px', textTransform: 'uppercase', opacity: 0.8, marginBottom: '12px' }}>
-          What We Offer
-        </p>
-        <h1 style={{ fontSize: '48px', fontWeight: '800', marginBottom: '16px' }}>Our Medical Services</h1>
-        <p style={{ fontSize: '18px', opacity: 0.85, maxWidth: '550px', margin: '0 auto' }}>
-          World-class care across a wide range of specialties — all under one roof.
-        </p>
+      <section className="hero-section">
+        <div className="container">
+          <p className="hero-badge fade-in-up">What We Offer</p>
+          <h1 className="hero-title fade-in-up fade-in-up-delay-1">
+            Our Medical <span>Services</span>
+          </h1>
+          <p className="hero-subtitle fade-in-up fade-in-up-delay-2">
+            World-class care across a wide range of specialties — all under one roof.
+          </p>
+        </div>
       </section>
 
       {/* WHY CHOOSE US */}
-      <section style={{ backgroundColor: '#F8FAFC', padding: '60px 40px' }}>
-        <div style={{
-          maxWidth: '1100px',
-          margin: '0 auto',
-          display: 'flex',
-          gap: '24px',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-        }}>
-          {[
-            { icon: '🏆', title: 'Award Winning', desc: 'Recognized for excellence in patient care' },
-            { icon: '👨‍⚕️', title: '500+ Specialists', desc: 'Board-certified doctors in every field' },
-            { icon: '🕐', title: '24/7 Available', desc: 'Round the clock emergency services' },
-            { icon: '💳', title: 'Insurance Accepted', desc: 'We work with all major providers' },
-          ].map((item, i) => (
-            <div key={i} style={{
-              backgroundColor: 'white',
-              borderRadius: '16px',
-              padding: '28px 24px',
-              textAlign: 'center',
-              width: '220px',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-            }}>
-              <div style={{ fontSize: '36px', marginBottom: '12px' }}>{item.icon}</div>
-              <h4 style={{ fontWeight: '700', marginBottom: '8px' }}>{item.title}</h4>
-              <p style={{ color: '#64748B', fontSize: '14px' }}>{item.desc}</p>
-            </div>
-          ))}
+      <section className="py-5" style={{ backgroundColor: '#F8FAFC' }}>
+        <div className="container py-4">
+          <div className="text-center mb-5">
+            <p className="section-badge">Why Choose Us</p>
+            <h2 className="section-title">The HealthCare Difference</h2>
+          </div>
+          <div className="row g-4 justify-content-center">
+            {whyUs.map((item, i) => (
+              <div key={i} className="col-12 col-sm-6 col-lg-3">
+                <div className="why-card">
+                  <div style={{ fontSize: '36px', marginBottom: '12px' }}>{item.icon}</div>
+                  <h4 style={{ fontWeight: '700', marginBottom: '8px' }}>{item.title}</h4>
+                  <p style={{ color: '#64748B', fontSize: '14px' }}>{item.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* SERVICES GRID */}
-      <section style={{ backgroundColor: '#ffffff', padding: '80px 40px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '48px' }}>
-          <p style={{ color: '#2563EB', fontWeight: '600', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '13px' }}>
-            All Specialties
-          </p>
-          <h2 style={{ fontSize: '36px', fontWeight: '800', marginTop: '8px' }}>Browse By Service</h2>
-        </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '28px',
-          maxWidth: '1100px',
-          margin: '0 auto',
-        }}>
-          {services.map((service, i) => (
-            <div key={i} style={{
-              backgroundColor: '#F8FAFC',
-              borderRadius: '20px',
-              padding: '36px 28px',
-              boxShadow: '0 2px 12px rgba(0,0,0,0.05)',
-              transition: 'transform 0.2s, box-shadow 0.2s',
-              cursor: 'default',
-            }}
-              onMouseEnter={e => {
-                e.currentTarget.style.transform = 'translateY(-4px)';
-                e.currentTarget.style.boxShadow = '0 8px 28px rgba(37,99,235,0.12)';
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.05)';
-              }}
-            >
-              <div style={{ fontSize: '44px', marginBottom: '16px' }}>{service.icon}</div>
-              <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>{service.title}</h3>
-              <p style={{ color: '#64748B', fontSize: '14px', lineHeight: '1.7', marginBottom: '20px' }}>{service.desc}</p>
-
-              {/* Feature list */}
-              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px' }}>
-                {service.features.map((f, j) => (
-                  <li key={j} style={{ fontSize: '14px', color: '#475569', marginBottom: '8px' }}>
-                    <span style={{ color: '#10B981', fontWeight: '700', marginRight: '8px' }}>✓</span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-
-              <Link to="/book-appointment" style={{
-                display: 'inline-block',
-                backgroundColor: '#2563EB',
-                color: 'white',
-                padding: '10px 24px',
-                borderRadius: '50px',
-                textDecoration: 'none',
-                fontSize: '14px',
-                fontWeight: '600',
-              }}>
-                Book Now
-              </Link>
-            </div>
-          ))}
+      <section className="py-5" style={{ backgroundColor: '#ffffff' }}>
+        <div className="container py-4">
+          <div className="text-center mb-5">
+            <p className="section-badge">All Specialties</p>
+            <h2 className="section-title">Browse By Service</h2>
+          </div>
+          <div className="row g-4">
+            {services.map((service, i) => (
+              <div key={i} className="col-12 col-md-6 col-lg-4">
+                <div className="service-page-card">
+                  <div style={{ fontSize: '44px', marginBottom: '16px' }}>{service.icon}</div>
+                  <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '12px' }}>{service.title}</h3>
+                  <p style={{ color: '#64748B', fontSize: '14px', lineHeight: '1.7', marginBottom: '20px' }}>{service.desc}</p>
+                  <ul className="service-feature-list">
+                    {service.features.map((f, j) => (
+                      <li key={j}>
+                        <span>✓</span>{f}
+                      </li>
+                    ))}
+                  </ul>
+                  <Link
+                    to={`/book-appointment?specialty=${service.title}`}
+                    className="hero-btn-primary"
+                    style={{ fontSize: '14px', padding: '10px 24px' }}
+                  >
+                    Book Now
+                  </Link>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* CALL TO ACTION */}
-      <section style={{
-        background: 'linear-gradient(135deg, #10B981, #059669)',
-        color: 'white',
-        padding: '80px 40px',
-        textAlign: 'center',
-      }}>
-        <h2 style={{ fontSize: '38px', fontWeight: '800', marginBottom: '16px' }}>
-          Not Sure Which Service You Need?
-        </h2>
-        <p style={{ fontSize: '17px', opacity: 0.9, marginBottom: '36px', maxWidth: '480px', margin: '0 auto 36px' }}>
-          Talk to one of our general practitioners and they'll guide you to the right specialist.
-        </p>
-        <Link to="/book-appointment" style={{
-          backgroundColor: 'white',
-          color: '#059669',
-          padding: '16px 40px',
-          borderRadius: '50px',
-          textDecoration: 'none',
-          fontSize: '17px',
-          fontWeight: '800',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-        }}>
-          📅 Book a Consultation
-        </Link>
+      <section className="cta-section">
+        <div className="container">
+          <h2 className="cta-title">Not Sure Which Service You Need?</h2>
+          <p className="cta-subtitle">
+            Talk to one of our general practitioners and they'll guide you to the right specialist.
+          </p>
+          <Link to="/book-appointment" className="cta-btn">
+            📅 Book a Consultation
+          </Link>
+        </div>
       </section>
 
     </div>

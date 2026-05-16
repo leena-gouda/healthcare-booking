@@ -13,3 +13,511 @@ body {
 a {
   text-decoration: none;
 }
+
+/* ── HERO SECTION ── */
+.hero-section {
+  background: linear-gradient(135deg, #1e40af 0%, #2563EB 50%, #3b82f6 100%);
+  color: white;
+  padding: 120px 20px;
+  text-align: center;
+}
+
+.hero-badge {
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-bottom: 16px;
+}
+
+.hero-title {
+  font-size: 56px;
+  font-weight: 800;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.hero-title span {
+  color: #10B981;
+}
+
+.hero-subtitle {
+  font-size: 20px;
+  opacity: 0.85;
+  max-width: 550px;
+  margin: 0 auto 40px;
+  line-height: 1.6;
+}
+
+.hero-btn-primary {
+  background-color: #10B981;
+  color: white !important;
+  padding: 16px 36px;
+  border-radius: 50px;
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: 0 4px 20px rgba(16,185,129,0.4);
+  transition: transform 0.2s, box-shadow 0.2s;
+  display: inline-block;
+}
+
+.hero-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(16,185,129,0.5);
+}
+
+.hero-btn-secondary {
+  background-color: rgba(255,255,255,0.15);
+  color: white !important;
+  padding: 16px 36px;
+  border-radius: 50px;
+  font-size: 17px;
+  font-weight: 700;
+  border: 2px solid rgba(255,255,255,0.4);
+  transition: transform 0.2s, background 0.2s;
+  display: inline-block;
+}
+
+.hero-btn-secondary:hover {
+  transform: translateY(-2px);
+  background-color: rgba(255,255,255,0.25);
+}
+
+/* ── STATS BAR ── */
+.stats-section {
+  background-color: white;
+  padding: 48px 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+
+.stat-number {
+  font-size: 40px;
+  font-weight: 800;
+  color: #2563EB;
+}
+
+.stat-label {
+  font-size: 15px;
+  color: #64748B;
+  margin-top: 4px;
+}
+
+/* ── SECTION HEADERS ── */
+.section-badge {
+  color: #2563EB;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 13px;
+}
+
+.section-title {
+  font-size: 36px;
+  font-weight: 800;
+  margin-top: 8px;
+}
+
+.section-subtitle {
+  color: #64748B;
+  font-size: 16px;
+  margin-top: 12px;
+}
+
+/* ── MISSION & VISION ── */
+.mission-card {
+  background-color: #EFF6FF;
+  border-radius: 20px;
+  padding: 40px;
+  border-left: 6px solid #2563EB;
+  height: 100%;
+  transition: transform 0.2s;
+}
+
+.mission-card:hover {
+  transform: translateY(-4px);
+}
+
+.vision-card {
+  background-color: #ECFDF5;
+  border-radius: 20px;
+  padding: 40px;
+  border-left: 6px solid #10B981;
+  height: 100%;
+  transition: transform 0.2s;
+}
+
+.vision-card:hover {
+  transform: translateY(-4px);
+}
+
+.mv-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.mv-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1E293B;
+  margin-bottom: 16px;
+}
+
+.mv-text {
+  color: #475569;
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+/* ── SERVICE CARDS ── */
+.service-card {
+  background-color: white;
+  border-radius: 20px;
+  padding: 32px 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+}
+
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(37,99,235,0.12);
+}
+
+.service-icon {
+  font-size: 40px;
+  margin-bottom: 16px;
+}
+
+.service-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.service-desc {
+  color: #64748B;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ── DOCTOR CARDS ── */
+.doctor-card {
+  background-color: #F8FAFC;
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+}
+
+.doctor-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(37,99,235,0.12);
+}
+
+.doctor-img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #2563EB;
+  margin-bottom: 16px;
+}
+
+.doctor-name {
+  font-size: 17px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.doctor-specialty {
+  color: #2563EB;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.doctor-rating {
+  color: #F59E0B;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+/* ── OUTLINE BUTTON ── */
+.btn-outline-primary-custom {
+  color: #2563EB;
+  font-weight: 600;
+  font-size: 15px;
+  border: 2px solid #2563EB;
+  padding: 12px 28px;
+  border-radius: 50px;
+  display: inline-block;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-outline-primary-custom:hover {
+  background-color: #2563EB;
+  color: white !important;
+}
+
+/* ── CTA SECTION ── */
+.cta-section {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.cta-title {
+  font-size: 40px;
+  font-weight: 800;
+  margin-bottom: 16px;
+}
+
+.cta-subtitle {
+  font-size: 18px;
+  opacity: 0.9;
+  margin-bottom: 36px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.cta-btn {
+  background-color: white;
+  color: #059669 !important;
+  padding: 16px 40px;
+  border-radius: 50px;
+  font-size: 17px;
+  font-weight: 800;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  display: inline-block;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.2);
+}
+
+/* ── WHY CHOOSE US (Services page) ── */
+.why-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s;
+  height: 100%;
+}
+
+.why-card:hover {
+  transform: translateY(-4px);
+}
+
+/* ── SERVICE PAGE CARDS ── */
+.service-page-card {
+  background-color: #F8FAFC;
+  border-radius: 20px;
+  padding: 36px 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+}
+
+.service-page-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 28px rgba(37,99,235,0.12);
+}
+
+.service-feature-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 24px;
+}
+
+.service-feature-list li {
+  font-size: 14px;
+  color: #475569;
+  margin-bottom: 8px;
+}
+
+.service-feature-list li span {
+  color: #10B981;
+  font-weight: 700;
+  margin-right: 8px;
+}
+
+/* ── LOGIN PAGE ── */
+.login-page {
+  min-height: 100vh;
+  background-color: #F8FAFC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.login-card {
+  background-color: white;
+  border-radius: 24px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.10);
+  width: 100%;
+  max-width: 480px;
+  overflow: hidden;
+}
+
+.login-header {
+  background: linear-gradient(135deg, #1e40af, #2563EB);
+  padding: 36px 40px;
+  text-align: center;
+  color: white;
+}
+
+.login-tabs {
+  display: flex;
+  border-bottom: 2px solid #F1F5F9;
+}
+
+.login-tab {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  background: none;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.login-tab.active {
+  color: #2563EB;
+  border-bottom: 3px solid #2563EB;
+}
+
+.login-tab.inactive {
+  color: #94A3B8;
+  border-bottom: 3px solid transparent;
+}
+
+.login-form-area {
+  padding: 36px 40px;
+}
+
+.form-label-custom {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.form-input-custom {
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #E2E8F0;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  color: #1E293B;
+  background-color: #F8FAFC;
+  transition: border-color 0.2s;
+}
+
+.form-input-custom:focus {
+  border-color: #2563EB;
+  background-color: white;
+}
+
+.form-input-error {
+  border-color: #EF4444 !important;
+}
+
+.error-text {
+  color: #EF4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.success-box {
+  background-color: #ECFDF5;
+  border: 1px solid #10B981;
+  color: #065F46;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  background-color: #2563EB;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.submit-btn:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+.fade-in-up-delay-1 { animation-delay: 0.1s; opacity: 0; }
+.fade-in-up-delay-2 { animation-delay: 0.2s; opacity: 0; }
+.fade-in-up-delay-3 { animation-delay: 0.3s; opacity: 0; }
+.fade-in-up-delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+/* ── MOBILE RESPONSIVENESS ── */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 36px;
+  }
+
+  .hero-subtitle {
+    font-size: 16px;
+  }
+
+  .stat-number {
+    font-size: 28px;
+  }
+
+  .section-title {
+    font-size: 28px;
+  }
+
+  .cta-title {
+    font-size: 28px;
+  }
+
+  .login-header {
+    padding: 28px 24px;
+  }
+
+  .login-form-area {
+    padding: 24px;
+  }
+}

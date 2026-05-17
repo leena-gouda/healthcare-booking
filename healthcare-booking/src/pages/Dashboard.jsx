@@ -1,23 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
   const navigate = useNavigate();
   const [patient, setPatient] = useState(null);
   const [appointments, setAppointments] = useState([]);
-  const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('overview');
-
-  // Booking form state
-  const [bookingData, setBookingData] = useState({
-    doctor: '',
-    date: '',
-    time: '',
-    reason: '',
-  });
-  const [bookingMsg, setBookingMsg] = useState('');
-  const [bookingError, setBookingError] = useState('');
 
   const token = localStorage.getItem('token');
 
@@ -47,10 +36,6 @@ function Dashboard() {
         const apptData = await apptRes.json();
         setAppointments(apptData);
 
-        const docRes = await fetch('http://localhost:5000/api/doctors');
-        const docData = await docRes.json();
-        setDoctors(docData);
-
         setLoading(false);
       } catch (err) {
         console.error('Error loading dashboard:', err);
@@ -67,44 +52,6 @@ function Dashboard() {
     navigate('/login');
   };
 
-  const handleBookingChange = (e) => {
-    const { name, value } = e.target;
-    setBookingData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleBookAppointment = async () => {
-    setBookingMsg('');
-    setBookingError('');
-
-    if (!bookingData.doctor || !bookingData.date || !bookingData.time) {
-      setBookingError('Please fill in doctor, date, and time.');
-      return;
-    }
-
-    try {
-      const res = await fetch('http://localhost:5000/api/appointments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(bookingData),
-      });
-      const data = await res.json();
-
-      if (!res.ok) {
-        setBookingError(data.message || 'Booking failed');
-        return;
-      }
-
-      setAppointments(prev => [data, ...prev]);
-      setBookingData({ doctor: '', date: '', time: '', reason: '' });
-      setBookingMsg('Appointment booked successfully!');
-    } catch (err) {
-      setBookingError('Server error. Please try again.');
-    }
-  };
-
   const handleCancelAppointment = async (id) => {
     try {
       const res = await fetch(`http://localhost:5000/api/appointments/${id}/cancel`, {
@@ -113,36 +60,11 @@ function Dashboard() {
       });
       const data = await res.json();
       if (res.ok) {
-        setAppointments(prev =>
-          prev.map(a => (a._id === id ? data : a))
-        );
+        setAppointments(prev => prev.map(a => (a._id === id ? data : a)));
       }
     } catch (err) {
       console.error('Error cancelling:', err);
     }
-  };
-
-  // Helper: get available time slots for selected doctor and date
-  const getAvailableSlots = () => {
-    const selectedDoc = doctors.find(d => d._id === bookingData.doctor);
-    if (!selectedDoc || !bookingData.date) return [];
-    const dayName = new Date(bookingData.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' });
-    return selectedDoc?.availability?.[dayName] || [];
-  };
-
-  // Helper: get available days for selected doctor
-  const getAvailableDays = () => {
-    const selectedDoc = doctors.find(d => d._id === bookingData.doctor);
-    if (!selectedDoc?.availability) return [];
-    return Object.entries(selectedDoc.availability)
-      .filter(([day, slots]) => slots.length > 0)
-      .map(([day]) => day);
-  };
-
-  // Helper: get day name from date string
-  const getDayName = () => {
-    if (!bookingData.date) return '';
-    return new Date(bookingData.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' });
   };
 
   if (loading) {
@@ -156,15 +78,10 @@ function Dashboard() {
   const upcomingAppts = appointments.filter(a => a.status === 'upcoming');
   const completedAppts = appointments.filter(a => a.status === 'completed');
   const cancelledAppts = appointments.filter(a => a.status === 'cancelled');
-  const availableSlots = getAvailableSlots();
-  const availableDays = getAvailableDays();
-  const selectedDayName = getDayName();
-  const selectedDoc = doctors.find(d => d._id === bookingData.doctor);
 
   const sidebarItems = [
     { key: 'overview', label: '📊 Overview' },
     { key: 'appointments', label: '📅 My Appointments' },
-    { key: 'book', label: '➕ Book Appointment' },
     { key: 'profile', label: '👤 My Profile' },
   ];
 
@@ -203,6 +120,7 @@ function Dashboard() {
                 <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>{patient?.email}</p>
               </div>
 
+              {/* Nav Items */}
               {sidebarItems.map(item => (
                 <button
                   key={item.key}
@@ -225,6 +143,27 @@ function Dashboard() {
                   {item.label}
                 </button>
               ))}
+
+              {/* Book Appointment — links to friend's page */}
+              <a
+                href="/book-appointment"
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: '12px',
+                  backgroundColor: '#ECFDF5',
+                  color: '#10B981',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  textAlign: 'left',
+                  textDecoration: 'none',
+                  marginBottom: '4px',
+                  transition: 'all 0.2s',
+                }}
+              >
+                ➕ Book Appointment
+              </a>
 
               <button
                 onClick={handleLogout}
@@ -321,13 +260,13 @@ function Dashboard() {
                     <div style={{ textAlign: 'center', padding: '32px 0' }}>
                       <p style={{ fontSize: '40px', marginBottom: '12px' }}>📭</p>
                       <p style={{ color: '#64748B', fontSize: '15px' }}>No upcoming appointments</p>
-                      <button
-                        onClick={() => setActiveSection('book')}
+                      <a
+                        href="/book-appointment"
                         className="hero-btn-primary"
-                        style={{ fontSize: '14px', padding: '10px 24px', marginTop: '12px' }}
+                        style={{ fontSize: '14px', padding: '10px 24px', marginTop: '12px', display: 'inline-block' }}
                       >
                         Book Your First Appointment
-                      </button>
+                      </a>
                     </div>
                   ) : (
                     upcomingAppts.slice(0, 3).map(appt => (
@@ -452,146 +391,6 @@ function Dashboard() {
                       </div>
                     ))
                   )}
-                </div>
-              </div>
-            )}
-
-            {/* ── BOOK APPOINTMENT ── */}
-            {activeSection === 'book' && (
-              <div>
-                <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1E293B', marginBottom: '24px' }}>
-                  Book an Appointment
-                </h2>
-                <div style={{
-                  backgroundColor: 'white',
-                  borderRadius: '20px',
-                  padding: '32px',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
-                  maxWidth: '600px',
-                }}>
-                  {bookingMsg && <div className="success-box">{bookingMsg}</div>}
-                  {bookingError && <div style={{
-                    backgroundColor: '#FEF2F2',
-                    border: '1px solid #EF4444',
-                    color: '#DC2626',
-                    padding: '14px 18px',
-                    borderRadius: '12px',
-                    marginBottom: '20px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                  }}>❌ {bookingError}</div>}
-
-                  {/* Doctor Select */}
-                  <div className="mb-3">
-                    <label className="form-label-custom">Select Doctor</label>
-                    <select
-                      name="doctor"
-                      value={bookingData.doctor}
-                      onChange={(e) => {
-                        setBookingData(prev => ({ ...prev, doctor: e.target.value, date: '', time: '' }));
-                      }}
-                      className="form-input-custom"
-                    >
-                      <option value="">Choose a doctor...</option>
-                      {doctors.filter(d => d.available).map(doc => (
-                        <option key={doc._id} value={doc._id}>
-                          {doc.name} — {doc.specialty} (EGP {doc.fee})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Show doctor's available days */}
-                  {bookingData.doctor && availableDays.length > 0 && (
-                    <div style={{
-                      backgroundColor: '#EFF6FF',
-                      borderRadius: '12px',
-                      padding: '14px 18px',
-                      marginBottom: '16px',
-                      fontSize: '13px',
-                      color: '#1E293B',
-                    }}>
-                      <span style={{ fontWeight: '700', color: '#2563EB' }}>📅 Available days: </span>
-                      {availableDays.join(', ')}
-                    </div>
-                  )}
-
-                  {bookingData.doctor && availableDays.length === 0 && (
-                    <div style={{
-                      backgroundColor: '#FEF2F2',
-                      borderRadius: '12px',
-                      padding: '14px 18px',
-                      marginBottom: '16px',
-                      fontSize: '13px',
-                      color: '#DC2626',
-                    }}>
-                      ⚠️ This doctor has no availability set.
-                    </div>
-                  )}
-
-                  {/* Date */}
-                  <div className="mb-3">
-                    <label className="form-label-custom">Preferred Date</label>
-                    <input
-                      type="date"
-                      name="date"
-                      value={bookingData.date}
-                      onChange={(e) => {
-                        setBookingData(prev => ({ ...prev, date: e.target.value, time: '' }));
-                      }}
-                      className="form-input-custom"
-                      min={new Date().toISOString().split('T')[0]}
-                      disabled={!bookingData.doctor}
-                    />
-                    {bookingData.doctor && bookingData.date && availableSlots.length === 0 && (
-                      <p style={{ color: '#EF4444', fontSize: '13px', marginTop: '6px', fontWeight: '600' }}>
-                        ⚠️ {selectedDoc?.name} is not available on {selectedDayName}s. Please pick another date.
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Time */}
-                  <div className="mb-3">
-                    <label className="form-label-custom">Preferred Time</label>
-                    <select
-                      name="time"
-                      value={bookingData.time}
-                      onChange={handleBookingChange}
-                      className="form-input-custom"
-                      disabled={!bookingData.date || availableSlots.length === 0}
-                    >
-                      <option value="">
-                        {!bookingData.doctor
-                          ? 'Select a doctor first...'
-                          : !bookingData.date
-                          ? 'Select a date first...'
-                          : availableSlots.length === 0
-                          ? 'No slots available on this day'
-                          : 'Choose a time...'}
-                      </option>
-                      {availableSlots.map(slot => (
-                        <option key={slot} value={slot}>{slot}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Reason */}
-                  <div className="mb-4">
-                    <label className="form-label-custom">Reason for Visit (optional)</label>
-                    <textarea
-                      name="reason"
-                      value={bookingData.reason}
-                      onChange={handleBookingChange}
-                      placeholder="Describe your symptoms or reason for the appointment..."
-                      className="form-input-custom"
-                      rows="3"
-                      style={{ resize: 'vertical' }}
-                    />
-                  </div>
-
-                  <button onClick={handleBookAppointment} className="submit-btn">
-                    📅 Book Appointment
-                  </button>
                 </div>
               </div>
             )}

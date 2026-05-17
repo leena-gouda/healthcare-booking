@@ -8,6 +8,8 @@ const BookAppointment = () => {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [timeSlots, setTimeSlots] = useState([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
 
   const [formData, setFormData] = useState({
     doctor: '',
@@ -27,7 +29,7 @@ const BookAppointment = () => {
   useEffect(() => {
     const fetchDoctors = async () => {
       try {
-        const res = await fetch('http://localhost:5000/api/doctors');
+        const res = await fetch('http://localhost:5000/api/doctors?available=true');
         const data = await res.json();
         setDoctors(data);
       } catch (err) {
@@ -38,6 +40,26 @@ const BookAppointment = () => {
     };
     fetchDoctors();
   }, []);
+
+  useEffect(() => {
+    const fetchSlots = async () => {
+      if (!formData.doctor || !formData.date) return;
+      setLoadingSlots(true);
+      setFormData(prev => ({ ...prev, time: '' }));
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/doctors/${formData.doctor}/slots?date=${formData.date}`
+        );
+        const data = await res.json();
+        setTimeSlots(data.slots || []);
+      } catch (err) {
+        setError('Could not load time slots. Please try again.');
+      } finally {
+        setLoadingSlots(false);
+      }
+    };
+    fetchSlots();
+  }, [formData.doctor, formData.date]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -52,7 +74,6 @@ const BookAppointment = () => {
       return;
     }
 
-    // Don't allow past dates
     const today = new Date().toISOString().split('T')[0];
     if (formData.date < today) {
       setError('Please select a future date.');
@@ -84,14 +105,6 @@ const BookAppointment = () => {
       setLoading(false);
     }
   };
-
-  const timeSlots = [
-    '9:00 AM', '9:30 AM', '10:00 AM', '10:30 AM',
-    '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM',
-    '1:00 PM', '1:30 PM', '2:00 PM', '2:30 PM',
-    '3:00 PM', '3:30 PM', '4:00 PM', '4:30 PM',
-    '5:00 PM', '5:30 PM'
-  ];
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -177,17 +190,28 @@ const BookAppointment = () => {
         {/* Time */}
         <div style={styles.inputGroup}>
           <label style={styles.label}>Preferred Time <span style={styles.required}>*</span></label>
-          <select
-            name="time"
-            value={formData.time}
-            onChange={handleChange}
-            style={styles.input}
-          >
-            <option value="">-- Choose a Time Slot --</option>
-            {timeSlots.map((slot) => (
-              <option key={slot} value={slot}>{slot}</option>
-            ))}
-          </select>
+          {loadingSlots ? (
+            <p style={styles.loadingText}>Loading available slots...</p>
+          ) : (
+            <select
+              name="time"
+              value={formData.time}
+              onChange={handleChange}
+              style={styles.input}
+              disabled={!formData.doctor || !formData.date}
+            >
+              <option value="">
+                {!formData.doctor || !formData.date
+                  ? '-- Select a doctor and date first --'
+                  : timeSlots.length === 0
+                  ? '-- No slots available for this day --'
+                  : '-- Choose a Time Slot --'}
+              </option>
+              {timeSlots.map((slot) => (
+                <option key={slot} value={slot}>{slot}</option>
+              ))}
+            </select>
+          )}
         </div>
 
         {/* Reason */}

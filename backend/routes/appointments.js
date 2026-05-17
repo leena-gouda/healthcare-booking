@@ -19,6 +19,21 @@ router.get('/', auth, async (req, res) => {
 router.post('/', auth, async (req, res) => {
   try {
     const { doctor, date, time, reason } = req.body;
+
+    // Check if this slot is already booked
+    const existing = await Appointment.findOne({
+      doctor,
+      date,
+      time,
+      status: { $ne: 'cancelled' }
+    });
+
+    if (existing) {
+      return res.status(400).json({ 
+        message: 'This time slot is already booked. Please choose another.' 
+      });
+    }
+
     const appointment = new Appointment({
       patient: req.patient.id,
       doctor,
@@ -26,6 +41,7 @@ router.post('/', auth, async (req, res) => {
       time,
       reason,
     });
+
     const saved = await appointment.save();
     const populated = await saved.populate('doctor', 'name specialty image fee');
     res.status(201).json(populated);
@@ -33,7 +49,6 @@ router.post('/', auth, async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 });
-
 // Cancel an appointment
 router.put('/:id/cancel', auth, async (req, res) => {
   try {

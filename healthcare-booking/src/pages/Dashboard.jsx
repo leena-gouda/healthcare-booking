@@ -29,7 +29,6 @@ function Dashboard() {
 
     const fetchData = async () => {
       try {
-        // Fetch patient profile
         const profileRes = await fetch('http://localhost:5000/api/auth/me', {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -42,14 +41,12 @@ function Dashboard() {
         const profileData = await profileRes.json();
         setPatient(profileData);
 
-        // Fetch appointments
         const apptRes = await fetch('http://localhost:5000/api/appointments', {
           headers: { Authorization: `Bearer ${token}` },
         });
         const apptData = await apptRes.json();
         setAppointments(apptData);
 
-        // Fetch doctors for booking
         const docRes = await fetch('http://localhost:5000/api/doctors');
         const docData = await docRes.json();
         setDoctors(docData);
@@ -125,6 +122,29 @@ function Dashboard() {
     }
   };
 
+  // Helper: get available time slots for selected doctor and date
+  const getAvailableSlots = () => {
+    const selectedDoc = doctors.find(d => d._id === bookingData.doctor);
+    if (!selectedDoc || !bookingData.date) return [];
+    const dayName = new Date(bookingData.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' });
+    return selectedDoc?.availability?.[dayName] || [];
+  };
+
+  // Helper: get available days for selected doctor
+  const getAvailableDays = () => {
+    const selectedDoc = doctors.find(d => d._id === bookingData.doctor);
+    if (!selectedDoc?.availability) return [];
+    return Object.entries(selectedDoc.availability)
+      .filter(([day, slots]) => slots.length > 0)
+      .map(([day]) => day);
+  };
+
+  // Helper: get day name from date string
+  const getDayName = () => {
+    if (!bookingData.date) return '';
+    return new Date(bookingData.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' });
+  };
+
   if (loading) {
     return (
       <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -136,9 +156,13 @@ function Dashboard() {
   const upcomingAppts = appointments.filter(a => a.status === 'upcoming');
   const completedAppts = appointments.filter(a => a.status === 'completed');
   const cancelledAppts = appointments.filter(a => a.status === 'cancelled');
+  const availableSlots = getAvailableSlots();
+  const availableDays = getAvailableDays();
+  const selectedDayName = getDayName();
+  const selectedDoc = doctors.find(d => d._id === bookingData.doctor);
 
   const sidebarItems = [
-    { key: 'overview', label: '📊 Overview', },
+    { key: 'overview', label: '📊 Overview' },
     { key: 'appointments', label: '📅 My Appointments' },
     { key: 'book', label: '➕ Book Appointment' },
     { key: 'profile', label: '👤 My Profile' },
@@ -157,7 +181,6 @@ function Dashboard() {
               padding: '28px 20px',
               boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
             }}>
-              {/* Patient Info */}
               <div style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #F1F5F9' }}>
                 <div style={{
                   width: '72px',
@@ -180,7 +203,6 @@ function Dashboard() {
                 <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>{patient?.email}</p>
               </div>
 
-              {/* Nav Items */}
               {sidebarItems.map(item => (
                 <button
                   key={item.key}
@@ -235,7 +257,6 @@ function Dashboard() {
                   Welcome back, {patient?.name?.split(' ')[0]}! 👋
                 </h2>
 
-                {/* Stats Cards */}
                 <div className="row g-3 mb-4">
                   <div className="col-6 col-md-3">
                     <div style={{
@@ -287,7 +308,6 @@ function Dashboard() {
                   </div>
                 </div>
 
-                {/* Upcoming Appointments Preview */}
                 <div style={{
                   backgroundColor: 'white',
                   borderRadius: '20px',
@@ -467,7 +487,9 @@ function Dashboard() {
                     <select
                       name="doctor"
                       value={bookingData.doctor}
-                      onChange={handleBookingChange}
+                      onChange={(e) => {
+                        setBookingData(prev => ({ ...prev, doctor: e.target.value, date: '', time: '' }));
+                      }}
                       className="form-input-custom"
                     >
                       <option value="">Choose a doctor...</option>
@@ -479,6 +501,34 @@ function Dashboard() {
                     </select>
                   </div>
 
+                  {/* Show doctor's available days */}
+                  {bookingData.doctor && availableDays.length > 0 && (
+                    <div style={{
+                      backgroundColor: '#EFF6FF',
+                      borderRadius: '12px',
+                      padding: '14px 18px',
+                      marginBottom: '16px',
+                      fontSize: '13px',
+                      color: '#1E293B',
+                    }}>
+                      <span style={{ fontWeight: '700', color: '#2563EB' }}>📅 Available days: </span>
+                      {availableDays.join(', ')}
+                    </div>
+                  )}
+
+                  {bookingData.doctor && availableDays.length === 0 && (
+                    <div style={{
+                      backgroundColor: '#FEF2F2',
+                      borderRadius: '12px',
+                      padding: '14px 18px',
+                      marginBottom: '16px',
+                      fontSize: '13px',
+                      color: '#DC2626',
+                    }}>
+                      ⚠️ This doctor has no availability set.
+                    </div>
+                  )}
+
                   {/* Date */}
                   <div className="mb-3">
                     <label className="form-label-custom">Preferred Date</label>
@@ -486,10 +536,18 @@ function Dashboard() {
                       type="date"
                       name="date"
                       value={bookingData.date}
-                      onChange={handleBookingChange}
+                      onChange={(e) => {
+                        setBookingData(prev => ({ ...prev, date: e.target.value, time: '' }));
+                      }}
                       className="form-input-custom"
                       min={new Date().toISOString().split('T')[0]}
+                      disabled={!bookingData.doctor}
                     />
+                    {bookingData.doctor && bookingData.date && availableSlots.length === 0 && (
+                      <p style={{ color: '#EF4444', fontSize: '13px', marginTop: '6px', fontWeight: '600' }}>
+                        ⚠️ {selectedDoc?.name} is not available on {selectedDayName}s. Please pick another date.
+                      </p>
+                    )}
                   </div>
 
                   {/* Time */}
@@ -500,17 +558,20 @@ function Dashboard() {
                       value={bookingData.time}
                       onChange={handleBookingChange}
                       className="form-input-custom"
+                      disabled={!bookingData.date || availableSlots.length === 0}
                     >
-                      <option value="">Select a time...</option>
-                      <option value="9:00 AM">9:00 AM</option>
-                      <option value="10:00 AM">10:00 AM</option>
-                      <option value="11:00 AM">11:00 AM</option>
-                      <option value="12:00 PM">12:00 PM</option>
-                      <option value="1:00 PM">1:00 PM</option>
-                      <option value="2:00 PM">2:00 PM</option>
-                      <option value="3:00 PM">3:00 PM</option>
-                      <option value="4:00 PM">4:00 PM</option>
-                      <option value="5:00 PM">5:00 PM</option>
+                      <option value="">
+                        {!bookingData.doctor
+                          ? 'Select a doctor first...'
+                          : !bookingData.date
+                          ? 'Select a date first...'
+                          : availableSlots.length === 0
+                          ? 'No slots available on this day'
+                          : 'Choose a time...'}
+                      </option>
+                      {availableSlots.map(slot => (
+                        <option key={slot} value={slot}>{slot}</option>
+                      ))}
                     </select>
                   </div>
 

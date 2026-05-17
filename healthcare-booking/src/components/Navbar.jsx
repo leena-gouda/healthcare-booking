@@ -1,9 +1,20 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem('token');
+  const patient = JSON.parse(localStorage.getItem('patient') || 'null');
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('patient');
+    navigate('/login');
+    setMenuOpen(false);
+  };
 
   const links = [
     { label: 'Home', path: '/' },
@@ -42,8 +53,54 @@ function Navbar() {
 
         {/* Right side buttons */}
         <div style={styles.rightButtons}>
-          <Link to="/login" style={styles.loginBtn}>Login</Link>
-          <Link to="/book" style={styles.bookBtn}>Book Appointment</Link>
+          {token ? (
+            <>
+              <Link to={patient?.role === 'admin' ? '/admin' : '/dashboard'} style={{
+                ...styles.loginBtn,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                borderColor: patient?.role === 'admin' ? '#EF4444' : '#2563EB',
+                color: patient?.role === 'admin' ? '#EF4444' : '#2563EB',
+              }}>
+                <span style={{
+                  width: '24px',
+                  height: '24px',
+                  borderRadius: '50%',
+                  background: patient?.role === 'admin'
+                    ? 'linear-gradient(135deg, #EF4444, #DC2626)'
+                    : 'linear-gradient(135deg, #2563EB, #3b82f6)',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '12px',
+                  color: 'white',
+                  fontWeight: '700',
+                }}>
+                  {patient?.role === 'admin' ? '⚙' : patient?.name?.charAt(0) || 'P'}
+                </span>
+                {patient?.role === 'admin' ? 'Admin Panel' : patient?.name?.split(' ')[0] || 'Dashboard'}
+              </Link>
+              <button onClick={handleLogout} style={{
+                padding: '8px 18px',
+                borderRadius: '8px',
+                backgroundColor: 'transparent',
+                border: '1.5px solid #EF4444',
+                color: '#EF4444',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+              }}>
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" style={styles.loginBtn}>Login</Link>
+              <Link to="/login" style={styles.bookBtn}>Book Appointment</Link>
+            </>
+          )}
         </div>
 
         {/* Hamburger for mobile */}
@@ -68,8 +125,37 @@ function Navbar() {
               {link.label}
             </Link>
           ))}
-          <Link to="/login" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>Login</Link>
-          <Link to="/book" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>Book Appointment</Link>
+          {token ? (
+            <>
+              <Link
+                to={patient?.role === 'admin' ? '/admin' : '/dashboard'}
+                style={styles.mobileLink}
+                onClick={() => setMenuOpen(false)}
+              >
+                {patient?.role === 'admin' ? '⚙️ Admin Panel' : '📊 Dashboard'}
+              </Link>
+              <button
+                onClick={handleLogout}
+                style={{
+                  ...styles.mobileLink,
+                  background: 'none',
+                  border: 'none',
+                  color: '#EF4444',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  width: '100%',
+                }}
+              >
+                🚪 Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>Login</Link>
+              <Link to="/login" style={styles.mobileLink} onClick={() => setMenuOpen(false)}>Book Appointment</Link>
+            </>
+          )}
         </div>
       )}
     </nav>

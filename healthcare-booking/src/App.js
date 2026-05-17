@@ -13,6 +13,7 @@ import Dashboard from './pages/Dashboard';
 import FAQ from './pages/FAQ';
 import Contact from './pages/Contact';
 import BookAppointment from './pages/BookAppointment';
+import AdminPanel from './pages/AdminPanel';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/faq" element={<FAQ />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/book-appointment" element={<BookAppointment />} />
+        <Route path="/admin" element={<AdminPanel />} />
       </Routes>
     </BrowserRouter>
   );

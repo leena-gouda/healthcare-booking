@@ -10,6 +10,9 @@ import Services from './pages/Services';
 import Login from './pages/Login';
 import About from './pages/About';
 import Dashboard from './pages/Dashboard';
+import FAQ from './pages/FAQ';
+import Contact from './pages/Contact';
+import BookAppointment from './pages/BookAppointment';
 
 function App() {
   return (
@@ -25,6 +28,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/about" element={<About />} />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/faq" element={<FAQ />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/book-appointment" element={<BookAppointment />} />
       </Routes>
     </BrowserRouter>
   );

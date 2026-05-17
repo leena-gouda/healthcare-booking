@@ -1,5 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title, PointElement, LineElement } from 'chart.js';
+import { Pie, Bar, Line } from 'react-chartjs-2';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title, PointElement, LineElement);
 
 function AdminPanel() {
   const navigate = useNavigate();
@@ -22,6 +26,10 @@ function AdminPanel() {
     about: '', image: '', available: true,
   });
   const [doctorMsg, setDoctorMsg] = useState('');
+
+  // Search/filter states
+  const [patientSearch, setPatientSearch] = useState('');
+  const [apptFilter, setApptFilter] = useState('all');
 
   const headers = {
     'Content-Type': 'application/json',
@@ -141,10 +149,135 @@ function AdminPanel() {
   if (loading) {
     return (
       <div style={{ minHeight: '80vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <p style={{ color: '#64748B', fontSize: '18px' }}>Loading admin panel...</p>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '48px', height: '48px', border: '4px solid #F1F5F9',
+            borderTopColor: '#2563EB', borderRadius: '50%',
+            animation: 'spin 0.8s linear infinite', margin: '0 auto 16px',
+          }} />
+          <p style={{ color: '#64748B', fontSize: '16px' }}>Loading admin panel...</p>
+          <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
       </div>
     );
   }
+
+  // ── CHART DATA ──
+  const appointmentPieData = {
+    labels: ['Upcoming', 'Completed', 'Cancelled'],
+    datasets: [{
+      data: [
+        stats?.upcomingAppointments || 0,
+        stats?.completedAppointments || 0,
+        stats?.cancelledAppointments || 0,
+      ],
+      backgroundColor: ['#10B981', '#2563EB', '#EF4444'],
+      borderColor: ['#ffffff', '#ffffff', '#ffffff'],
+      borderWidth: 3,
+      hoverOffset: 6,
+    }],
+  };
+
+  const pieOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom',
+        labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 13, weight: '600' } },
+      },
+    },
+  };
+
+  // Monthly registrations bar chart (group by month from patients createdAt)
+  const getMonthlyData = () => {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentYear = new Date().getFullYear();
+    const patientCounts = new Array(12).fill(0);
+    const appointmentCounts = new Array(12).fill(0);
+
+    patients.forEach(p => {
+      const d = new Date(p.createdAt);
+      if (d.getFullYear() === currentYear) patientCounts[d.getMonth()]++;
+    });
+
+    appointments.forEach(a => {
+      const d = new Date(a.createdAt);
+      if (d.getFullYear() === currentYear) appointmentCounts[d.getMonth()]++;
+    });
+
+    return {
+      labels: months,
+      datasets: [
+        {
+          label: 'New Patients',
+          data: patientCounts,
+          backgroundColor: 'rgba(37, 99, 235, 0.8)',
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+        {
+          label: 'Appointments',
+          data: appointmentCounts,
+          backgroundColor: 'rgba(16, 185, 129, 0.8)',
+          borderRadius: 6,
+          borderSkipped: false,
+        },
+      ],
+    };
+  };
+
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: { padding: 16, usePointStyle: true, pointStyle: 'circle', font: { size: 13, weight: '600' } },
+      },
+      title: { display: false },
+    },
+    scales: {
+      x: {
+        grid: { display: false },
+        ticks: { font: { size: 12, weight: '600' }, color: '#94A3B8' },
+      },
+      y: {
+        beginAtZero: true,
+        grid: { color: '#F1F5F9' },
+        ticks: { font: { size: 12 }, color: '#94A3B8', stepSize: 1 },
+      },
+    },
+  };
+
+  // Specialty distribution pie
+  const getSpecialtyData = () => {
+    const specialtyCounts = {};
+    doctors.forEach(d => {
+      specialtyCounts[d.specialty] = (specialtyCounts[d.specialty] || 0) + 1;
+    });
+    const colors = ['#2563EB', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#F97316'];
+    return {
+      labels: Object.keys(specialtyCounts),
+      datasets: [{
+        data: Object.values(specialtyCounts),
+        backgroundColor: colors.slice(0, Object.keys(specialtyCounts).length),
+        borderColor: '#ffffff',
+        borderWidth: 3,
+        hoverOffset: 6,
+      }],
+    };
+  };
+
+  // Filtered data
+  const filteredPatients = patients.filter(p =>
+    p.name?.toLowerCase().includes(patientSearch.toLowerCase()) ||
+    p.email?.toLowerCase().includes(patientSearch.toLowerCase())
+  );
+
+  const filteredAppointments = apptFilter === 'all'
+    ? appointments
+    : appointments.filter(a => a.status === apptFilter);
 
   const sidebarItems = [
     { key: 'overview', label: '📊 Overview' },
@@ -185,8 +318,19 @@ function AdminPanel() {
     borderRadius: '20px',
     fontSize: '12px',
     fontWeight: '600',
-    backgroundColor: status === 'upcoming' ? '#ECFDF5' : status === 'completed' ? '#EFF6FF' : '#FEF2F2',
-    color: status === 'upcoming' ? '#10B981' : status === 'completed' ? '#2563EB' : '#EF4444',
+    display: 'inline-block',
+    backgroundColor:
+      status === 'upcoming' ? '#FEF3C7' :
+      status === 'approved' ? '#ECFDF5' :
+      status === 'completed' ? '#EFF6FF' :
+      status === 'rejected' ? '#FEF2F2' :
+      status === 'cancelled' ? '#FEF2F2' : '#F1F5F9',
+    color:
+      status === 'upcoming' ? '#D97706' :
+      status === 'approved' ? '#10B981' :
+      status === 'completed' ? '#2563EB' :
+      status === 'rejected' ? '#EF4444' :
+      status === 'cancelled' ? '#EF4444' : '#64748B',
   });
 
   const actionBtn = (color) => ({
@@ -202,6 +346,42 @@ function AdminPanel() {
     transition: 'all 0.2s',
   });
 
+  const actionBtnFilled = (bgColor, textColor) => ({
+    padding: '6px 14px',
+    borderRadius: '8px',
+    border: 'none',
+    backgroundColor: bgColor,
+    color: textColor || 'white',
+    fontSize: '12px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    marginRight: '6px',
+    transition: 'all 0.2s',
+  });
+
+  const searchInputStyle = {
+    padding: '10px 16px',
+    borderRadius: '12px',
+    border: '1.5px solid #E2E8F0',
+    fontSize: '14px',
+    color: '#1E293B',
+    outline: 'none',
+    width: '280px',
+    transition: 'border-color 0.2s',
+  };
+
+  const filterBtnStyle = (isActive) => ({
+    padding: '8px 16px',
+    borderRadius: '10px',
+    border: 'none',
+    backgroundColor: isActive ? '#2563EB' : '#F1F5F9',
+    color: isActive ? 'white' : '#64748B',
+    fontSize: '13px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.2s',
+  });
+
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
       <div className="container py-4">
@@ -214,6 +394,8 @@ function AdminPanel() {
               borderRadius: '20px',
               padding: '28px 20px',
               boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
+              position: 'sticky',
+              top: '20px',
             }}>
               <div style={{ textAlign: 'center', marginBottom: '24px', paddingBottom: '24px', borderBottom: '1px solid #F1F5F9' }}>
                 <div style={{
@@ -286,12 +468,18 @@ function AdminPanel() {
                 <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1E293B', marginBottom: '24px' }}>
                   Admin Dashboard
                 </h2>
+
+                {/* Stat Cards */}
                 <div className="row g-3 mb-4">
                   {[
                     { label: 'Doctors', value: stats.totalDoctors, color: '#2563EB', icon: '👨‍⚕️' },
                     { label: 'Patients', value: stats.totalPatients, color: '#10B981', icon: '👥' },
                     { label: 'Appointments', value: stats.totalAppointments, color: '#F59E0B', icon: '📅' },
                     { label: 'Blog Posts', value: stats.totalBlogPosts, color: '#8B5CF6', icon: '📝' },
+                    { label: 'Reviews', value: stats.totalReviews, color: '#EC4899', icon: '⭐' },
+                    { label: 'Upcoming', value: stats.upcomingAppointments, color: '#10B981', icon: '🕐' },
+                    { label: 'Completed', value: stats.completedAppointments, color: '#2563EB', icon: '✅' },
+                    { label: 'Cancelled', value: stats.cancelledAppointments, color: '#EF4444', icon: '❌' },
                   ].map((stat, i) => (
                     <div key={i} className="col-6 col-md-3">
                       <div style={{
@@ -300,36 +488,101 @@ function AdminPanel() {
                         padding: '20px',
                         boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                         textAlign: 'center',
-                        borderTop: `4px solid ${stat.color}`,
+                        borderLeft: `4px solid ${stat.color}`,
                       }}>
-                        <div style={{ fontSize: '24px', marginBottom: '8px' }}>{stat.icon}</div>
-                        <div style={{ fontSize: '32px', fontWeight: '800', color: stat.color }}>{stat.value}</div>
-                        <div style={{ fontSize: '13px', color: '#64748B', marginTop: '4px' }}>{stat.label}</div>
+                        <div style={{ fontSize: '20px', marginBottom: '4px' }}>{stat.icon}</div>
+                        <div style={{ fontSize: '28px', fontWeight: '800', color: stat.color }}>{stat.value}</div>
+                        <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px', fontWeight: '600' }}>{stat.label}</div>
                       </div>
                     </div>
                   ))}
                 </div>
 
-                <div className="row g-3">
-                  <div className="col-md-4">
-                    <div style={{ ...cardStyle, textAlign: 'center', borderTop: '4px solid #10B981' }}>
-                      <div style={{ fontSize: '36px', fontWeight: '800', color: '#10B981' }}>{stats.upcomingAppointments}</div>
-                      <div style={{ fontSize: '14px', color: '#64748B' }}>Upcoming Appointments</div>
+                {/* Charts Row */}
+                <div className="row g-3 mb-4">
+                  <div className="col-md-5">
+                    <div style={{ ...cardStyle, height: '100%' }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B', marginBottom: '16px' }}>
+                        📊 Appointment Status
+                      </h3>
+                      <div style={{ height: '260px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {(stats.upcomingAppointments + stats.completedAppointments + stats.cancelledAppointments) > 0 ? (
+                          <Pie data={appointmentPieData} options={pieOptions} />
+                        ) : (
+                          <p style={{ color: '#94A3B8', fontSize: '14px' }}>No appointment data yet</p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <div className="col-md-4">
-                    <div style={{ ...cardStyle, textAlign: 'center', borderTop: '4px solid #2563EB' }}>
-                      <div style={{ fontSize: '36px', fontWeight: '800', color: '#2563EB' }}>{stats.completedAppointments}</div>
-                      <div style={{ fontSize: '14px', color: '#64748B' }}>Completed</div>
-                    </div>
-                  </div>
-                  <div className="col-md-4">
-                    <div style={{ ...cardStyle, textAlign: 'center', borderTop: '4px solid #EF4444' }}>
-                      <div style={{ fontSize: '36px', fontWeight: '800', color: '#EF4444' }}>{stats.cancelledAppointments}</div>
-                      <div style={{ fontSize: '14px', color: '#64748B' }}>Cancelled</div>
+                  <div className="col-md-7">
+                    <div style={{ ...cardStyle, height: '100%' }}>
+                      <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B', marginBottom: '16px' }}>
+                        📈 Monthly Activity ({new Date().getFullYear()})
+                      </h3>
+                      <div style={{ height: '260px' }}>
+                        <Bar data={getMonthlyData()} options={barOptions} />
+                      </div>
                     </div>
                   </div>
                 </div>
+
+                {/* Specialty Distribution */}
+                {doctors.length > 0 && (
+                  <div className="row g-3">
+                    <div className="col-md-5">
+                      <div style={cardStyle}>
+                        <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B', marginBottom: '16px' }}>
+                          🏥 Doctors by Specialty
+                        </h3>
+                        <div style={{ height: '220px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <Pie data={getSpecialtyData()} options={pieOptions} />
+                        </div>
+                      </div>
+                    </div>
+                    <div className="col-md-7">
+                      <div style={cardStyle}>
+                        <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B', marginBottom: '16px' }}>
+                          🕐 Recent Activity
+                        </h3>
+                        {appointments.slice(0, 5).map(appt => (
+                          <div key={appt._id} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            padding: '10px 12px',
+                            borderRadius: '10px',
+                            backgroundColor: '#F8FAFC',
+                            marginBottom: '6px',
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                              <div style={{
+                                width: '32px', height: '32px', borderRadius: '50%',
+                                backgroundColor: '#EFF6FF', display: 'flex', alignItems: 'center',
+                                justifyContent: 'center', fontSize: '14px',
+                              }}>📅</div>
+                              <div>
+                                <p style={{ fontSize: '13px', fontWeight: '600', color: '#1E293B', margin: 0 }}>
+                                  {appt.patient?.name || 'Patient'} → {appt.doctor?.name || 'Doctor'}
+                                </p>
+                                <p style={{ fontSize: '11px', color: '#94A3B8', margin: 0 }}>
+                                  {appt.date} at {appt.time}
+                                </p>
+                              </div>
+                            </div>
+                            <span style={statusBadge(appt.status)}>
+                              {appt.status.charAt(0).toUpperCase() + appt.status.slice(1)}
+                            </span>
+                          </div>
+                        ))}
+                        {appointments.length === 0 && (
+                          <p style={{ color: '#94A3B8', fontSize: '14px', textAlign: 'center', padding: '20px 0' }}>
+                            No recent activity
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -346,7 +599,7 @@ function AdminPanel() {
                       padding: '10px 24px',
                       borderRadius: '12px',
                       border: 'none',
-                      backgroundColor: '#10B981',
+                      backgroundColor: showAddDoctor ? '#64748B' : '#10B981',
                       color: 'white',
                       fontWeight: '700',
                       fontSize: '14px',
@@ -422,42 +675,46 @@ function AdminPanel() {
                         </tr>
                       </thead>
                       <tbody>
-                        {doctors.map(doc => (
-                          <tr key={doc._id}>
-                            <td style={tableCellStyle}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <img src={doc.image || 'https://randomuser.me/api/portraits/men/1.jpg'} alt={doc.name}
-                                  style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
-                                <span style={{ fontWeight: '600' }}>{doc.name}</span>
-                              </div>
-                            </td>
-                            <td style={tableCellStyle}>{doc.specialty}</td>
-                            <td style={tableCellStyle}>{doc.experience} yrs</td>
-                            <td style={tableCellStyle}>EGP {doc.fee}</td>
-                            <td style={tableCellStyle}>⭐ {doc.rating}</td>
-                            <td style={tableCellStyle}>
-                              <span style={{
-                                padding: '4px 12px',
-                                borderRadius: '20px',
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                backgroundColor: doc.available ? '#ECFDF5' : '#FEF2F2',
-                                color: doc.available ? '#10B981' : '#EF4444',
-                              }}>
-                                {doc.available ? 'Available' : 'Unavailable'}
-                              </span>
-                            </td>
-                            <td style={tableCellStyle}>
-                              <button onClick={() => handleToggleDoctorAvailability(doc)}
-                                style={actionBtn(doc.available ? '#F59E0B' : '#10B981')}>
-                                {doc.available ? 'Disable' : 'Enable'}
-                              </button>
-                              <button onClick={() => handleDeleteDoctor(doc._id)} style={actionBtn('#EF4444')}>
-                                Delete
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                        {doctors.length === 0 ? (
+                          <tr><td colSpan="7" style={{ ...tableCellStyle, textAlign: 'center', color: '#94A3B8', padding: '32px' }}>No doctors added yet</td></tr>
+                        ) : (
+                          doctors.map(doc => (
+                            <tr key={doc._id}>
+                              <td style={tableCellStyle}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                  <img src={doc.image || 'https://randomuser.me/api/portraits/men/1.jpg'} alt={doc.name}
+                                    style={{ width: '36px', height: '36px', borderRadius: '50%', objectFit: 'cover' }} />
+                                  <span style={{ fontWeight: '600' }}>{doc.name}</span>
+                                </div>
+                              </td>
+                              <td style={tableCellStyle}>{doc.specialty}</td>
+                              <td style={tableCellStyle}>{doc.experience} yrs</td>
+                              <td style={tableCellStyle}>EGP {doc.fee}</td>
+                              <td style={tableCellStyle}>⭐ {doc.rating || 0}</td>
+                              <td style={tableCellStyle}>
+                                <span style={{
+                                  padding: '4px 12px',
+                                  borderRadius: '20px',
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  backgroundColor: doc.available ? '#ECFDF5' : '#FEF2F2',
+                                  color: doc.available ? '#10B981' : '#EF4444',
+                                }}>
+                                  {doc.available ? 'Available' : 'Unavailable'}
+                                </span>
+                              </td>
+                              <td style={tableCellStyle}>
+                                <button onClick={() => handleToggleDoctorAvailability(doc)}
+                                  style={actionBtn(doc.available ? '#F59E0B' : '#10B981')}>
+                                  {doc.available ? 'Disable' : 'Enable'}
+                                </button>
+                                <button onClick={() => handleDeleteDoctor(doc._id)} style={actionBtn('#EF4444')}>
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -468,37 +725,68 @@ function AdminPanel() {
             {/* ── PATIENTS ── */}
             {activeSection === 'patients' && (
               <div>
-                <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1E293B', marginBottom: '24px' }}>
-                  Registered Patients ({patients.length})
-                </h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+                  <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1E293B', margin: 0 }}>
+                    Registered Patients ({patients.length})
+                  </h2>
+                  <input
+                    type="text"
+                    placeholder="🔍 Search patients..."
+                    value={patientSearch}
+                    onChange={e => setPatientSearch(e.target.value)}
+                    style={searchInputStyle}
+                  />
+                </div>
                 <div style={cardStyle}>
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                       <thead>
                         <tr>
+                          <th style={tableHeaderStyle}>#</th>
                           <th style={tableHeaderStyle}>Name</th>
                           <th style={tableHeaderStyle}>Email</th>
+                          <th style={tableHeaderStyle}>Phone</th>
                           <th style={tableHeaderStyle}>Gender</th>
                           <th style={tableHeaderStyle}>Joined</th>
                           <th style={tableHeaderStyle}>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {patients.map(p => (
-                          <tr key={p._id}>
-                            <td style={tableCellStyle}>
-                              <span style={{ fontWeight: '600' }}>{p.name}</span>
-                            </td>
-                            <td style={tableCellStyle}>{p.email}</td>
-                            <td style={tableCellStyle}>{p.gender || '—'}</td>
-                            <td style={tableCellStyle}>{new Date(p.createdAt).toLocaleDateString()}</td>
-                            <td style={tableCellStyle}>
-                              <button onClick={() => handleDeletePatient(p._id)} style={actionBtn('#EF4444')}>
-                                Delete
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                        {filteredPatients.length === 0 ? (
+                          <tr><td colSpan="7" style={{ ...tableCellStyle, textAlign: 'center', color: '#94A3B8', padding: '32px' }}>
+                            {patientSearch ? 'No patients match your search' : 'No registered patients yet'}
+                          </td></tr>
+                        ) : (
+                          filteredPatients.map((p, idx) => (
+                            <tr key={p._id}>
+                              <td style={tableCellStyle}>
+                                <span style={{ fontWeight: '600', color: '#94A3B8', fontSize: '13px' }}>{idx + 1}</span>
+                              </td>
+                              <td style={tableCellStyle}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                  <div style={{
+                                    width: '34px', height: '34px', borderRadius: '50%',
+                                    background: 'linear-gradient(135deg, #2563EB, #3b82f6)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    color: 'white', fontSize: '14px', fontWeight: '700',
+                                  }}>
+                                    {p.name?.charAt(0)?.toUpperCase() || '?'}
+                                  </div>
+                                  <span style={{ fontWeight: '600' }}>{p.name}</span>
+                                </div>
+                              </td>
+                              <td style={tableCellStyle}>{p.email}</td>
+                              <td style={tableCellStyle}>{p.phone || '—'}</td>
+                              <td style={tableCellStyle}>{p.gender || '—'}</td>
+                              <td style={tableCellStyle}>{new Date(p.createdAt).toLocaleDateString()}</td>
+                              <td style={tableCellStyle}>
+                                <button onClick={() => handleDeletePatient(p._id)} style={actionBtn('#EF4444')}>
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -509,9 +797,19 @@ function AdminPanel() {
             {/* ── APPOINTMENTS ── */}
             {activeSection === 'appointments' && (
               <div>
-                <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1E293B', marginBottom: '24px' }}>
-                  All Appointments ({appointments.length})
-                </h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+                  <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1E293B', margin: 0 }}>
+                    All Appointments ({appointments.length})
+                  </h2>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {['all', 'upcoming', 'completed', 'cancelled'].map(f => (
+                      <button key={f} onClick={() => setApptFilter(f)} style={filterBtnStyle(apptFilter === f)}>
+                        {f.charAt(0).toUpperCase() + f.slice(1)}
+                        {f !== 'all' && ` (${appointments.filter(a => a.status === f).length})`}
+                      </button>
+                    ))}
+                  </div>
+                </div>
                 <div style={cardStyle}>
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -526,50 +824,56 @@ function AdminPanel() {
                         </tr>
                       </thead>
                       <tbody>
-                        {appointments.map(appt => (
-                          <tr key={appt._id}>
-                            <td style={tableCellStyle}>
-                              <span style={{ fontWeight: '600' }}>{appt.patient?.name || 'Unknown'}</span>
-                              <br />
-                              <span style={{ fontSize: '12px', color: '#64748B' }}>{appt.patient?.email}</span>
-                            </td>
-                            <td style={tableCellStyle}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <img src={appt.doctor?.image || 'https://randomuser.me/api/portraits/men/1.jpg'}
-                                  alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
-                                <div>
-                                  <span style={{ fontWeight: '600', fontSize: '13px' }}>{appt.doctor?.name}</span>
-                                  <br />
-                                  <span style={{ fontSize: '12px', color: '#64748B' }}>{appt.doctor?.specialty}</span>
+                        {filteredAppointments.length === 0 ? (
+                          <tr><td colSpan="6" style={{ ...tableCellStyle, textAlign: 'center', color: '#94A3B8', padding: '32px' }}>
+                            No {apptFilter !== 'all' ? apptFilter : ''} appointments found
+                          </td></tr>
+                        ) : (
+                          filteredAppointments.map(appt => (
+                            <tr key={appt._id}>
+                              <td style={tableCellStyle}>
+                                <span style={{ fontWeight: '600' }}>{appt.patient?.name || 'Unknown'}</span>
+                                <br />
+                                <span style={{ fontSize: '12px', color: '#64748B' }}>{appt.patient?.email}</span>
+                              </td>
+                              <td style={tableCellStyle}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <img src={appt.doctor?.image || 'https://randomuser.me/api/portraits/men/1.jpg'}
+                                    alt="" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                                  <div>
+                                    <span style={{ fontWeight: '600', fontSize: '13px' }}>{appt.doctor?.name}</span>
+                                    <br />
+                                    <span style={{ fontSize: '12px', color: '#64748B' }}>{appt.doctor?.specialty}</span>
+                                  </div>
                                 </div>
-                              </div>
-                            </td>
-                            <td style={tableCellStyle}>{appt.date}</td>
-                            <td style={tableCellStyle}>{appt.time}</td>
-                            <td style={tableCellStyle}>
-                              <span style={statusBadge(appt.status)}>
-                                {appt.status.charAt(0).toUpperCase() + appt.status.slice(1)}
-                              </span>
-                            </td>
-                            <td style={tableCellStyle}>
-                              {appt.status === 'upcoming' && (
-                                <>
-                                  <button onClick={() => handleUpdateAppointmentStatus(appt._id, 'completed')}
-                                    style={actionBtn('#10B981')}>
-                                    Complete
-                                  </button>
-                                  <button onClick={() => handleUpdateAppointmentStatus(appt._id, 'cancelled')}
-                                    style={actionBtn('#EF4444')}>
-                                    Cancel
-                                  </button>
-                                </>
-                              )}
-                              {appt.status !== 'upcoming' && (
-                                <span style={{ fontSize: '12px', color: '#94A3B8' }}>No actions</span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
+                              </td>
+                              <td style={tableCellStyle}>{appt.date}</td>
+                              <td style={tableCellStyle}>{appt.time}</td>
+                              <td style={tableCellStyle}>
+                                <span style={statusBadge(appt.status)}>
+                                  {appt.status.charAt(0).toUpperCase() + appt.status.slice(1)}
+                                </span>
+                              </td>
+                              <td style={tableCellStyle}>
+                                {appt.status === 'upcoming' && (
+                                  <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                    <button onClick={() => handleUpdateAppointmentStatus(appt._id, 'completed')}
+                                      style={actionBtnFilled('#10B981')}>
+                                      ✓ Approve
+                                    </button>
+                                    <button onClick={() => handleUpdateAppointmentStatus(appt._id, 'cancelled')}
+                                      style={actionBtnFilled('#EF4444')}>
+                                      ✕ Reject
+                                    </button>
+                                  </div>
+                                )}
+                                {appt.status !== 'upcoming' && (
+                                  <span style={{ fontSize: '12px', color: '#94A3B8' }}>—</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>
@@ -587,29 +891,43 @@ function AdminPanel() {
                   {blogPosts.length === 0 ? (
                     <p style={{ textAlign: 'center', color: '#64748B', padding: '32px 0' }}>No blog posts yet</p>
                   ) : (
-                    blogPosts.map(post => (
-                      <div key={post._id} style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                        padding: '16px',
-                        borderRadius: '12px',
-                        backgroundColor: '#F8FAFC',
-                        marginBottom: '8px',
-                      }}>
-                        <div>
-                          <p style={{ fontWeight: '700', fontSize: '15px', color: '#1E293B', margin: '0 0 4px' }}>
-                            {post.title}
-                          </p>
-                          <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
-                            {post.category} · by {post.author} · {new Date(post.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <button onClick={() => handleDeleteBlog(post._id)} style={actionBtn('#EF4444')}>
-                          Delete
-                        </button>
-                      </div>
-                    ))
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr>
+                            <th style={tableHeaderStyle}>Title</th>
+                            <th style={tableHeaderStyle}>Category</th>
+                            <th style={tableHeaderStyle}>Author</th>
+                            <th style={tableHeaderStyle}>Date</th>
+                            <th style={tableHeaderStyle}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {blogPosts.map(post => (
+                            <tr key={post._id}>
+                              <td style={tableCellStyle}>
+                                <span style={{ fontWeight: '600' }}>{post.title}</span>
+                              </td>
+                              <td style={tableCellStyle}>
+                                <span style={{
+                                  padding: '4px 10px', borderRadius: '8px', fontSize: '12px',
+                                  fontWeight: '600', backgroundColor: '#F1F5F9', color: '#475569',
+                                }}>
+                                  {post.category}
+                                </span>
+                              </td>
+                              <td style={tableCellStyle}>{post.author}</td>
+                              <td style={tableCellStyle}>{new Date(post.createdAt).toLocaleDateString()}</td>
+                              <td style={tableCellStyle}>
+                                <button onClick={() => handleDeleteBlog(post._id)} style={actionBtn('#EF4444')}>
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </div>
               </div>
@@ -625,33 +943,44 @@ function AdminPanel() {
                   {reviews.length === 0 ? (
                     <p style={{ textAlign: 'center', color: '#64748B', padding: '32px 0' }}>No reviews yet</p>
                   ) : (
-                    reviews.map(review => (
-                      <div key={review._id} style={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'flex-start',
-                        padding: '16px',
-                        borderRadius: '12px',
-                        backgroundColor: '#F8FAFC',
-                        marginBottom: '8px',
-                      }}>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                            <span style={{ fontWeight: '700', fontSize: '14px', color: '#1E293B' }}>{review.author}</span>
-                            <span style={{ color: '#F59E0B', fontSize: '13px' }}>
-                              {'⭐'.repeat(review.rating)}
-                            </span>
-                          </div>
-                          <p style={{ fontSize: '13px', color: '#475569', margin: '0 0 4px' }}>{review.comment}</p>
-                          <p style={{ fontSize: '12px', color: '#94A3B8', margin: 0 }}>
-                            For: {review.doctorId?.name || 'Unknown doctor'} · {new Date(review.createdAt).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <button onClick={() => handleDeleteReview(review._id)} style={actionBtn('#EF4444')}>
-                          Delete
-                        </button>
-                      </div>
-                    ))
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr>
+                            <th style={tableHeaderStyle}>Patient</th>
+                            <th style={tableHeaderStyle}>Doctor</th>
+                            <th style={tableHeaderStyle}>Rating</th>
+                            <th style={tableHeaderStyle}>Comment</th>
+                            <th style={tableHeaderStyle}>Date</th>
+                            <th style={tableHeaderStyle}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reviews.map(review => (
+                            <tr key={review._id}>
+                              <td style={tableCellStyle}>
+                                <span style={{ fontWeight: '600' }}>{review.author}</span>
+                              </td>
+                              <td style={tableCellStyle}>{review.doctorId?.name || 'Unknown'}</td>
+                              <td style={tableCellStyle}>
+                                <span style={{ color: '#F59E0B' }}>{'⭐'.repeat(review.rating)}</span>
+                              </td>
+                              <td style={{ ...tableCellStyle, maxWidth: '250px' }}>
+                                <p style={{ margin: 0, fontSize: '13px', color: '#475569', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                                  {review.comment}
+                                </p>
+                              </td>
+                              <td style={tableCellStyle}>{new Date(review.createdAt).toLocaleDateString()}</td>
+                              <td style={tableCellStyle}>
+                                <button onClick={() => handleDeleteReview(review._id)} style={actionBtn('#EF4444')}>
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   )}
                 </div>
               </div>

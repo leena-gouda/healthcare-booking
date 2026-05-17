@@ -22,6 +22,7 @@ function Login() {
 
   const [errors, setErrors] = useState({});
   const [successMsg, setSuccessMsg] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLoginChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -39,20 +40,45 @@ function Login() {
     }));
   };
 
-  const handleLoginSubmit = () => {
+  const handleLoginSubmit = async () => {
     const newErrors = {};
     if (!loginData.email) newErrors.email = 'Email is required';
     else if (!loginData.email.includes('@')) newErrors.email = 'Enter a valid email';
     if (!loginData.password) newErrors.password = 'Password is required';
     else if (loginData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     setErrors(newErrors);
+
     if (Object.keys(newErrors).length === 0) {
-      setSuccessMsg('Login successful! Redirecting...');
-      setTimeout(() => navigate('/book-appointment'), 1500);
+      setLoading(true);
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: loginData.email,
+            password: loginData.password,
+          }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          setErrors({ email: data.message || 'Login failed' });
+          setLoading(false);
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('patient', JSON.stringify(data.patient));
+        setSuccessMsg('Login successful! Redirecting...');
+        setTimeout(() => navigate('/dashboard'), 1500);
+      } catch (err) {
+        setErrors({ email: 'Server error. Is the backend running?' });
+        setLoading(false);
+      }
     }
   };
 
-  const handleRegisterSubmit = () => {
+  const handleRegisterSubmit = async () => {
     const newErrors = {};
     if (!registerData.fullName) newErrors.fullName = 'Full name is required';
     if (!registerData.email) newErrors.email = 'Email is required';
@@ -64,9 +90,37 @@ function Login() {
     if (!registerData.dateOfBirth) newErrors.dateOfBirth = 'Date of birth is required';
     if (!registerData.gender) newErrors.gender = 'Please select a gender';
     setErrors(newErrors);
+
     if (Object.keys(newErrors).length === 0) {
-      setSuccessMsg('Account created! Redirecting...');
-      setTimeout(() => navigate('/book-appointment'), 1500);
+      setLoading(true);
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: registerData.fullName,
+            email: registerData.email,
+            password: registerData.password,
+            dateOfBirth: registerData.dateOfBirth,
+            gender: registerData.gender,
+          }),
+        });
+        const data = await res.json();
+
+        if (!res.ok) {
+          setErrors({ email: data.message || 'Registration failed' });
+          setLoading(false);
+          return;
+        }
+
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('patient', JSON.stringify(data.patient));
+        setSuccessMsg('Account created! Redirecting...');
+        setTimeout(() => navigate('/dashboard'), 1500);
+      } catch (err) {
+        setErrors({ email: 'Server error. Is the backend running?' });
+        setLoading(false);
+      }
     }
   };
 
@@ -118,7 +172,6 @@ function Login() {
                 Welcome Back
               </h2>
 
-              {/* Email */}
               <div className="mb-3">
                 <label className="form-label-custom">Email Address</label>
                 <input
@@ -132,7 +185,6 @@ function Login() {
                 {errors.email && <p className="error-text">{errors.email}</p>}
               </div>
 
-              {/* Password */}
               <div className="mb-3">
                 <label className="form-label-custom">Password</label>
                 <input
@@ -146,7 +198,6 @@ function Login() {
                 {errors.password && <p className="error-text">{errors.password}</p>}
               </div>
 
-              {/* Remember me */}
               <div className="d-flex align-items-center gap-2 mb-4">
                 <input
                   type="checkbox"
@@ -161,8 +212,8 @@ function Login() {
                 </label>
               </div>
 
-              <button onClick={handleLoginSubmit} className="submit-btn">
-                Login →
+              <button onClick={handleLoginSubmit} className="submit-btn" disabled={loading}>
+                {loading ? 'Logging in...' : 'Login →'}
               </button>
 
               <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#64748B' }}>
@@ -184,7 +235,6 @@ function Login() {
                 Create Account
               </h2>
 
-              {/* Full Name */}
               <div className="mb-3">
                 <label className="form-label-custom">Full Name</label>
                 <input
@@ -198,7 +248,6 @@ function Login() {
                 {errors.fullName && <p className="error-text">{errors.fullName}</p>}
               </div>
 
-              {/* Email */}
               <div className="mb-3">
                 <label className="form-label-custom">Email Address</label>
                 <input
@@ -212,7 +261,6 @@ function Login() {
                 {errors.email && <p className="error-text">{errors.email}</p>}
               </div>
 
-              {/* Date of Birth + Gender side by side */}
               <div className="row g-3 mb-3">
                 <div className="col-6">
                   <label className="form-label-custom">Date of Birth</label>
@@ -243,7 +291,6 @@ function Login() {
                 </div>
               </div>
 
-              {/* Password */}
               <div className="mb-3">
                 <label className="form-label-custom">Password</label>
                 <input
@@ -257,7 +304,6 @@ function Login() {
                 {errors.password && <p className="error-text">{errors.password}</p>}
               </div>
 
-              {/* Confirm Password */}
               <div className="mb-4">
                 <label className="form-label-custom">Confirm Password</label>
                 <input
@@ -271,8 +317,8 @@ function Login() {
                 {errors.confirmPassword && <p className="error-text">{errors.confirmPassword}</p>}
               </div>
 
-              <button onClick={handleRegisterSubmit} className="submit-btn">
-                Create Account →
+              <button onClick={handleRegisterSubmit} className="submit-btn" disabled={loading}>
+                {loading ? 'Creating account...' : 'Create Account →'}
               </button>
 
               <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#64748B' }}>

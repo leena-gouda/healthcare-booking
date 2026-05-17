@@ -12,6 +12,7 @@ function Navbar() {
     { label: 'Blog', path: '/blog' },
     { label: 'Contact', path: '/contact' },
     { label: 'FAQ', path: '/faq' },
+    { label: 'About', path: '/about' },
   ];
 
   return (

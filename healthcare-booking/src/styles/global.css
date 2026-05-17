@@ -521,3 +521,230 @@ a {
     padding: 24px;
   }
 }
+/* ── ABOUT PAGE ── */
+.about-hero {
+  background: linear-gradient(135deg, #1e40af 0%, #2563EB 50%, #3b82f6 100%);
+  color: white;
+  padding: 100px 20px;
+  text-align: center;
+}
+
+/* Story Visual */
+.about-story-visual {
+  background: linear-gradient(135deg, #EFF6FF, #ECFDF5);
+  border-radius: 24px;
+  padding: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.story-emoji-item {
+  width: 80px;
+  height: 80px;
+  background: white;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  transition: transform 0.3s;
+}
+
+.story-emoji-item:hover {
+  transform: scale(1.15) rotate(5deg);
+}
+
+/* Timeline */
+.about-timeline {
+  position: relative;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 0;
+}
+
+.about-timeline::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, #2563EB, #10B981);
+  border-radius: 3px;
+}
+
+.about-timeline-item {
+  position: relative;
+  width: 50%;
+  padding: 12px 40px 32px;
+}
+
+.about-timeline-item.left {
+  left: 0;
+  text-align: right;
+}
+
+.about-timeline-item.right {
+  left: 50%;
+  text-align: left;
+}
+
+.about-timeline-dot {
+  position: absolute;
+  top: 20px;
+  width: 16px;
+  height: 16px;
+  background: #2563EB;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.2);
+  z-index: 1;
+}
+
+.about-timeline-item.left .about-timeline-dot {
+  right: -8px;
+}
+
+.about-timeline-item.right .about-timeline-dot {
+  left: -8px;
+}
+
+.about-timeline-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.about-timeline-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(37,99,235,0.12);
+}
+
+.about-timeline-year {
+  font-size: 14px;
+  font-weight: 700;
+  color: #10B981;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.about-timeline-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 8px;
+}
+
+.about-timeline-desc {
+  font-size: 14px;
+  color: #64748B;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Value Cards */
+.about-value-card {
+  background: #F8FAFC;
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  height: 100%;
+  border: 2px solid transparent;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.about-value-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(37,99,235,0.10);
+  border-color: #2563EB;
+}
+
+.about-value-icon {
+  font-size: 44px;
+  margin-bottom: 16px;
+}
+
+.about-value-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 10px;
+}
+
+.about-value-desc {
+  font-size: 14px;
+  color: #64748B;
+  line-height: 1.7;
+  margin: 0;
+}
+
+/* Team Cards */
+.about-team-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px 20px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: transform 0.2s, box-shadow 0.2s;
+  height: 100%;
+}
+
+.about-team-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(37,99,235,0.12);
+}
+
+.about-team-emoji {
+  font-size: 56px;
+  margin-bottom: 16px;
+}
+
+.about-team-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1E293B;
+  margin-bottom: 4px;
+}
+
+.about-team-role {
+  font-size: 13px;
+  color: #2563EB;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Timeline Mobile */
+@media (max-width: 768px) {
+  .about-timeline::before {
+    left: 20px;
+  }
+
+  .about-timeline-item {
+    width: 100%;
+    left: 0 !important;
+    text-align: left !important;
+    padding: 12px 20px 32px 52px;
+  }
+
+  .about-timeline-dot {
+    left: 12px !important;
+    right: auto !important;
+  }
+
+  .story-emoji-item {
+    width: 60px;
+    height: 60px;
+    font-size: 28px;
+  }
+}

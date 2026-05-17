@@ -2,6 +2,9 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const authRoutes = require('./routes/auth');
+const appointmentRoutes = require('./routes/appointments');
+
 
 dotenv.config();
 
@@ -17,6 +20,9 @@ const blogRoutes = require('./routes/blog');
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/blog', blogRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/appointments', appointmentRoutes);
+
 
 app.get('/', (req, res) => {
   res.json({ message: 'Healthcare API is running!' });

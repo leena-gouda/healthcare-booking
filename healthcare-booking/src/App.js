@@ -8,6 +8,8 @@ import BlogPost from './pages/BlogPost';
 import Home from './pages/Home';
 import Services from './pages/Services';
 import Login from './pages/Login';
+import About from './pages/About';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   return (
@@ -21,6 +23,8 @@ function App() {
         <Route path="/blog/:id" element={<BlogPost />} />
         <Route path="/services" element={<Services />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </BrowserRouter>
   );

@@ -13,10 +13,26 @@ const Contact = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitted(true);
-  };
+    try {
+      const res = await fetch('http://localhost:5000/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSubmitted(true);
+      } else {
+        alert('Error: ' + data.error);
+      }
+    } catch (err) {
+      alert('Could not connect to server. Make sure the backend is running.');
+    }
+};
 
   return (
     <div style={styles.container}>

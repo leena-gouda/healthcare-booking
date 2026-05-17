@@ -16,6 +16,7 @@ const blogRoutes = require('./routes/blog');
 const newsletterRoutes = require('./routes/newsletter');
 const authRoutes = require('./routes/auth');
 const appointmentRoutes = require('./routes/appointments');
+const contactRoutes = require('./routes/contact');
 const adminRoutes = require('./routes/admin');
 
 app.use('/api/doctors', doctorRoutes);
@@ -24,6 +25,7 @@ app.use('/api/blog', blogRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
+app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
 
 app.get('/', (req, res) => {

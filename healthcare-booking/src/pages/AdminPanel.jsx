@@ -859,11 +859,11 @@ function AdminPanel() {
                                   <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
                                     <button onClick={() => handleUpdateAppointmentStatus(appt._id, 'completed')}
                                       style={actionBtnFilled('#10B981')}>
-                                      ✓ Approve
+                                      ✓ complete
                                     </button>
                                     <button onClick={() => handleUpdateAppointmentStatus(appt._id, 'cancelled')}
                                       style={actionBtnFilled('#EF4444')}>
-                                      ✕ Reject
+                                      ✕ cancel
                                     </button>
                                   </div>
                                 )}

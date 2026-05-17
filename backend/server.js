@@ -2,9 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
-const authRoutes = require('./routes/auth');
-const appointmentRoutes = require('./routes/appointments');
-
 
 dotenv.config();
 
@@ -16,13 +13,16 @@ app.use(express.json());
 const doctorRoutes = require('./routes/doctors');
 const reviewRoutes = require('./routes/reviews');
 const blogRoutes = require('./routes/blog');
+const newsletterRoutes = require('./routes/newsletter');
+const authRoutes = require('./routes/auth');
+const appointmentRoutes = require('./routes/appointments');
 
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/blog', blogRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
-
 
 app.get('/', (req, res) => {
   res.json({ message: 'Healthcare API is running!' });

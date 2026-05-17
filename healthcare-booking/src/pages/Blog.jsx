@@ -37,13 +37,30 @@ useEffect(() => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleSubscribe = (e) => {
-    e.preventDefault();
-    if (!email) return;
+  const handleSubscribe = async (e) => {
+  e.preventDefault();
+  if (!email) return;
+  try {
+    const response = await fetch('http://localhost:5000/api/newsletter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    const data = await response.json();
+    if (response.status === 409) {
+      alert('This email is already subscribed!');
+      return;
+    }
     setSubscribed(true);
     setEmail('');
     setTimeout(() => setSubscribed(false), 4000);
-  };
+  } catch (err) {
+    console.log(err);
+    setSubscribed(true);
+    setEmail('');
+    setTimeout(() => setSubscribed(false), 4000);
+  }
+};
 
   if (loading) {
   return (

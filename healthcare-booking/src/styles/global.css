@@ -16,7 +16,6 @@ a {
 
 /* ── HERO SECTION ── */
 .hero-section {
-  background: linear-gradient(135deg, #1e40af 0%, #2563EB 50%, #3b82f6 100%);
   color: white;
   padding: 120px 20px;
   text-align: center;

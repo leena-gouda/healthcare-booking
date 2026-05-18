@@ -1,7 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 function Home() {
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState('');
+
   const stats = [
     { number: '500+', label: 'Expert Doctors' },
     { number: '10,000+', label: 'Happy Patients' },
@@ -9,36 +12,29 @@ function Home() {
     { number: '15+', label: 'Years of Excellence' },
   ];
 
-  const services = [
-    { icon: '🫀', title: 'Cardiology', desc: 'Expert heart care and cardiovascular treatment.' },
-    { icon: '🧠', title: 'Neurology', desc: 'Advanced brain and nervous system specialists.' },
-    { icon: '🦷', title: 'Dental Care', desc: 'Complete dental health for the whole family.' },
-    { icon: '👁️', title: 'Ophthalmology', desc: 'Comprehensive eye care and vision treatment.' },
-    { icon: '🦴', title: 'Orthopedics', desc: 'Bone, joint, and muscle care specialists.' },
-    { icon: '👶', title: 'Pediatrics', desc: 'Dedicated healthcare for children of all ages.' },
+  const steps = [
+    { icon: '🔍', step: '01', title: 'Search', desc: 'Search for a doctor by name, specialty, or condition.' },
+    { icon: '📅', step: '02', title: 'Book', desc: 'Pick a time that works for you and confirm your appointment.' },
+    { icon: '💊', step: '03', title: 'Get Care', desc: 'Visit your doctor and get the care you deserve.' },
   ];
 
-  const [doctors, setDoctors] = useState([]);
-  const [loadingDoctors, setLoadingDoctors] = useState(true);
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api/doctors')
-      .then(res => res.json())
-      .then(data => {
-        setDoctors(data.slice(0, 3));
-        setLoadingDoctors(false);
-      })
-      .catch(err => {
-        console.error('Error fetching doctors:', err);
-        setLoadingDoctors(false);
-      });
-  }, []);
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/doctors?search=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
 
   return (
     <div>
 
       {/* HERO SECTION */}
-      <section className="hero-section">
+      <section className="hero-section" style={{
+        backgroundImage: `linear-gradient(135deg, rgba(30, 64, 175, 0.25) 0%, rgba(37, 99, 235, 0.20) 50%, rgba(59, 130, 246, 0.15) 100%), url(${process.env.PUBLIC_URL}/hospital_interior2.webp)`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }}>
         <div className="container">
           <p className="hero-badge fade-in-up">Welcome to HealthCare</p>
           <h1 className="hero-title fade-in-up fade-in-up-delay-1">
@@ -47,6 +43,43 @@ function Home() {
           <p className="hero-subtitle fade-in-up fade-in-up-delay-2">
             Book appointments with top-rated doctors, get expert care, and take control of your health journey.
           </p>
+
+          {/* SEARCH BAR */}
+          <div className="fade-in-up fade-in-up-delay-3" style={{ maxWidth: '560px', margin: '0 auto 32px' }}>
+            <form onSubmit={handleSearch} style={{ display: 'flex', gap: '0', borderRadius: '50px', overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+              <input
+                type="text"
+                placeholder="Search by doctor, specialty, or condition..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '16px 24px',
+                  border: 'none',
+                  outline: 'none',
+                  fontSize: '15px',
+                  color: '#1E293B',
+                  backgroundColor: 'white',
+                }}
+              />
+              <button
+                type="submit"
+                style={{
+                  padding: '16px 28px',
+                  backgroundColor: '#10B981',
+                  color: 'white',
+                  border: 'none',
+                  fontSize: '15px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                🔍 Search
+              </button>
+            </form>
+          </div>
+
           <div className="d-flex gap-3 justify-content-center flex-wrap fade-in-up fade-in-up-delay-3">
             <Link to="/book-appointment" className="hero-btn-primary">
               📅 Book Appointment
@@ -71,7 +104,7 @@ function Home() {
           </div>
         </div>
       </section>
-
+      
       {/* MISSION & VISION */}
       <section className="py-5" style={{ backgroundColor: '#ffffff' }}>
         <div className="container py-4">
@@ -102,6 +135,54 @@ function Home() {
         </div>
       </section>
 
+      {/* HOW IT WORKS */}
+      <section className="py-5" style={{ backgroundColor: '#ffffff' }}>
+        <div className="container py-4">
+          <div className="text-center mb-5">
+            <p className="section-badge">Simple Process</p>
+            <h2 className="section-title">How It Works</h2>
+            <p className="section-subtitle">Get the care you need in 3 easy steps</p>
+          </div>
+          <div className="row g-4 justify-content-center">
+            {steps.map((s, i) => (
+              <div key={i} className="col-12 col-sm-4">
+                <div style={{
+                  textAlign: 'center',
+                  padding: '40px 24px',
+                  borderRadius: '20px',
+                  backgroundColor: '#F8FAFC',
+                  position: 'relative',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  height: '100%',
+                }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-6px)';
+                    e.currentTarget.style.boxShadow = '0 12px 32px rgba(37,99,235,0.12)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: '20px',
+                    fontSize: '13px',
+                    fontWeight: '800',
+                    color: '#E2E8F0',
+                    letterSpacing: '1px',
+                  }}>{s.step}</div>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>{s.icon}</div>
+                  <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '10px', color: '#1E293B' }}>{s.title}</h3>
+                  <p style={{ fontSize: '15px', color: '#64748B', lineHeight: '1.7', margin: 0 }}>{s.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* SERVICES SECTION */}
       <section className="py-5" style={{ backgroundColor: '#F8FAFC' }}>
         <div className="container py-4">
@@ -110,18 +191,54 @@ function Home() {
             <h2 className="section-title">Our Medical Services</h2>
             <p className="section-subtitle">World-class care across a wide range of specialties</p>
           </div>
-          <div className="row g-4">
-            {services.map((s, i) => (
-              <div key={i} className="col-12 col-sm-6 col-lg-4">
-                <div className="service-card">
-                  <div className="service-icon">{s.icon}</div>
-                  <h3 className="service-title">{s.title}</h3>
-                  <p className="service-desc">{s.desc}</p>
-                </div>
-              </div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', justifyContent: 'center', marginBottom: '40px' }}>
+            {[
+              { icon: '🫀', title: 'Cardiology' },
+              { icon: '🧠', title: 'Neurology' },
+              { icon: '🦷', title: 'Dental Care' },
+              { icon: '👁️', title: 'Ophthalmology' },
+              { icon: '🦴', title: 'Orthopedics' },
+              { icon: '👶', title: 'Pediatrics' },
+              { icon: '🩺', title: 'General Medicine' },
+              { icon: '🧬', title: 'Dermatology' },
+              { icon: '🏃', title: 'Physical Therapy' },
+            ].map((s, i) => (
+              <Link
+                key={i}
+                to={`/book-appointment?specialty=${s.title}`}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px',
+                  backgroundColor: 'white',
+                  border: '2px solid #E2E8F0',
+                  borderRadius: '50px',
+                  padding: '12px 24px',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  color: '#1E293B',
+                  textDecoration: 'none',
+                  transition: 'all 0.2s',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = '#2563EB';
+                  e.currentTarget.style.color = '#2563EB';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(37,99,235,0.12)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = '#E2E8F0';
+                  e.currentTarget.style.color = '#1E293B';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)';
+                }}
+              >
+                <span>{s.icon}</span> {s.title}
+              </Link>
             ))}
           </div>
-          <div className="text-center mt-5">
+          <div className="text-center">
             <Link to="/services" className="btn-outline-primary-custom">
               View All Services →
             </Link>
@@ -129,43 +246,17 @@ function Home() {
         </div>
       </section>
 
-      {/* FEATURED DOCTORS */}
+      {/* MEET OUR TEAM */}
       <section className="py-5" style={{ backgroundColor: '#ffffff' }}>
-        <div className="container py-4">
-          <div className="text-center mb-5">
-            <p className="section-badge">Meet The Team</p>
-            <h2 className="section-title">Featured Doctors</h2>
-            <p className="section-subtitle">Trusted by thousands of patients</p>
-          </div>
-          <div className="row g-4 justify-content-center">
-            {loadingDoctors ? (
-              <div className="text-center py-4">
-                <p style={{ color: '#64748B', fontSize: '16px' }}>Loading doctors...</p>
-              </div>
-            ) : doctors.map((doc, i) => (
-              <div key={i} className="col-12 col-sm-6 col-lg-4">
-                <div className="doctor-card">
-                  <img
-                    src={doc.image || `https://randomuser.me/api/portraits/${doc.gender === 'female' ? 'women' : 'men'}/${i + 10}.jpg`}
-                    alt={doc.name}
-                    className="doctor-img"
-                  />
-                  <h3 className="doctor-name">{doc.name}</h3>
-                  <p className="doctor-specialty">{doc.specialty}</p>
-                  <p className="doctor-rating">⭐ {doc.rating || 'New'}</p>
-                  <Link to={`/doctors/${doc._id}`} className="hero-btn-primary" style={{ fontSize: '14px', padding: '10px 24px' }}>
-                    View Profile
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-5">
-            <Link to="/doctors" className="btn-outline-primary-custom">
-              View All Doctors →
-            </Link>
-          </div>
+        <div className="container py-4 text-center">
+          <p className="section-badge">Meet The Team</p>
+          <h2 className="section-title">World-Class Doctors</h2>
+          <p className="section-subtitle" style={{ maxWidth: '500px', margin: '12px auto 32px' }}>
+            Our team of 500+ verified specialists are dedicated to giving you the best care possible.
+          </p>
+          <Link to="/doctors" className="btn-outline-primary-custom">
+            👨‍⚕️ Meet Our Doctors →
+          </Link>
         </div>
       </section>
 

@@ -14,6 +14,8 @@ import FAQ from './pages/FAQ';
 import Contact from './pages/Contact';
 import BookAppointment from './pages/BookAppointment';
 import AdminPanel from './pages/AdminPanel';
+import NotFound from './pages/NotFound';
+
 
 function App() {
   return (
@@ -33,6 +35,7 @@ function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/book-appointment" element={<BookAppointment />} />
         <Route path="/admin" element={<AdminPanel />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );

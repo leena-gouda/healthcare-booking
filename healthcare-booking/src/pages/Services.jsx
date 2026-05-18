@@ -70,7 +70,13 @@ function Services() {
     <div>
 
       {/* PAGE HEADER */}
-      <section className="hero-section">
+      {/* PAGE HEADER */}
+        <section style={{
+          background: 'linear-gradient(135deg, #1e40af 0%, #1d4ed8 40%, #10B981 100%)',
+          color: 'white',
+          padding: '100px 20px',
+          textAlign: 'center',
+        }}>
         <div className="container">
           <p className="hero-badge fade-in-up">What We Offer</p>
           <h1 className="hero-title fade-in-up fade-in-up-delay-1">

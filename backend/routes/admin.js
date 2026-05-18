@@ -19,7 +19,7 @@ function adminOnly(req, res, next) {
 router.get('/stats', auth, adminOnly, async (req, res) => {
   try {
     const totalDoctors = await Doctor.countDocuments();
-    const totalPatients = await Patient.countDocuments({ role: 'patient' });
+    const totalPatients = await Patient.countDocuments({ role: { $ne: 'admin' } });
     const totalAppointments = await Appointment.countDocuments();
     const upcomingAppointments = await Appointment.countDocuments({ status: 'upcoming' });
     const completedAppointments = await Appointment.countDocuments({ status: 'completed' });
@@ -45,7 +45,7 @@ router.get('/stats', auth, adminOnly, async (req, res) => {
 // ── PATIENTS ──
 router.get('/patients', auth, adminOnly, async (req, res) => {
   try {
-    const patients = await Patient.find({ role: 'patient' }).select('-password').sort({ createdAt: -1 });
+    const patients = await Patient.find({ role: { $ne: 'admin' } }).select('-password').sort({ createdAt: -1 });
     res.json(patients);
   } catch (err) {
     res.status(500).json({ message: err.message });

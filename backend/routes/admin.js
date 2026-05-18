@@ -7,6 +7,8 @@ const Appointment = require('../models/Appointment');
 const BlogPost = require('../models/BlogPost');
 const Review = require('../models/Review');
 
+const ContactMessage = require('../models/ContactMessage');
+
 // Middleware to check if user is admin
 function adminOnly(req, res, next) {
   if (req.patient.role !== 'admin') {
@@ -26,6 +28,7 @@ router.get('/stats', auth, adminOnly, async (req, res) => {
     const cancelledAppointments = await Appointment.countDocuments({ status: 'cancelled' });
     const totalBlogPosts = await BlogPost.countDocuments();
     const totalReviews = await Review.countDocuments();
+    const totalMessages = await ContactMessage.countDocuments();
 
     res.json({
       totalDoctors,
@@ -36,6 +39,7 @@ router.get('/stats', auth, adminOnly, async (req, res) => {
       cancelledAppointments,
       totalBlogPosts,
       totalReviews,
+      totalMessages,
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -153,6 +157,25 @@ router.delete('/reviews/:id', auth, adminOnly, async (req, res) => {
   try {
     await Review.findByIdAndDelete(req.params.id);
     res.json({ message: 'Review deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ── CONTACT MESSAGES ──
+router.get('/messages', auth, adminOnly, async (req, res) => {
+  try {
+    const messages = await ContactMessage.find().sort({ createdAt: -1 });
+    res.json(messages);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.delete('/messages/:id', auth, adminOnly, async (req, res) => {
+  try {
+    await ContactMessage.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Message deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

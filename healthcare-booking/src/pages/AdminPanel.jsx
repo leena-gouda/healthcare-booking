@@ -18,12 +18,14 @@ function AdminPanel() {
   const [blogPosts, setBlogPosts] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [messages, setMessages] = useState([]);
 
   // Add doctor form
   const [showAddDoctor, setShowAddDoctor] = useState(false);
   const [newDoctor, setNewDoctor] = useState({
     name: '', specialty: '', experience: '', fee: '', education: '',
     about: '', image: '', available: true,
+    availability: { Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [], Sunday: [] },
   });
   const [doctorMsg, setDoctorMsg] = useState('');
 
@@ -46,13 +48,14 @@ function AdminPanel() {
 
   const fetchAllData = async () => {
     try {
-      const [statsRes, doctorsRes, patientsRes, apptsRes, blogRes, reviewsRes] = await Promise.all([
+      const [statsRes, doctorsRes, patientsRes, apptsRes, blogRes, reviewsRes, messagesRes] = await Promise.all([
         fetch('http://localhost:5000/api/admin/stats', { headers }),
         fetch('http://localhost:5000/api/doctors'),
         fetch('http://localhost:5000/api/admin/patients', { headers }),
         fetch('http://localhost:5000/api/admin/appointments', { headers }),
         fetch('http://localhost:5000/api/blog'),
         fetch('http://localhost:5000/api/admin/reviews', { headers }),
+        fetch('http://localhost:5000/api/admin/messages', { headers }),
       ]);
 
       setStats(await statsRes.json());
@@ -62,6 +65,7 @@ function AdminPanel() {
       setBlogPosts(await blogRes.json());
       setReviews(await reviewsRes.json());
       setLoading(false);
+      setMessages(await messagesRes.json());
     } catch (err) {
       console.error('Error loading admin data:', err);
       setLoading(false);
@@ -102,7 +106,7 @@ function AdminPanel() {
       const data = await res.json();
       if (res.ok) {
         setDoctors(prev => [...prev, data]);
-        setNewDoctor({ name: '', specialty: '', experience: '', fee: '', education: '', about: '', image: '', available: true });
+        setNewDoctor({ name: '', specialty: '', experience: '', fee: '', education: '', about: '', image: '', available: true, availability: { Monday: [], Tuesday: [], Wednesday: [], Thursday: [], Friday: [], Saturday: [], Sunday: [] } });
         setShowAddDoctor(false);
         setDoctorMsg('');
       } else {
@@ -138,6 +142,11 @@ function AdminPanel() {
     if (!window.confirm('Delete this review?')) return;
     await fetch(`http://localhost:5000/api/admin/reviews/${id}`, { method: 'DELETE', headers });
     setReviews(prev => prev.filter(r => r._id !== id));
+  };
+  const handleDeleteMessage = async (id) => {
+    if (!window.confirm('Delete this message?')) return;
+    await fetch(`http://localhost:5000/api/admin/messages/${id}`, { method: 'DELETE', headers });
+    setMessages(prev => prev.filter(m => m._id !== id));
   };
 
   const handleLogout = () => {
@@ -286,6 +295,7 @@ function AdminPanel() {
     { key: 'appointments', label: '📅 Appointments' },
     { key: 'blog', label: '📝 Blog Posts' },
     { key: 'reviews', label: '⭐ Reviews' },
+    { key: 'messages', label: '✉️ Messages' },
   ];
 
   const cardStyle = {
@@ -652,6 +662,98 @@ function AdminPanel() {
                           onChange={e => setNewDoctor(p => ({ ...p, about: e.target.value }))} />
                       </div>
                       <div className="col-12">
+                        <label className="form-label-custom">Available Time Slots</label>
+                        <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 10px' }}>
+                          Select days and add time slots for each
+                        </p>
+                        <div style={{ display: 'grid', gap: '8px' }}>
+                          {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => (
+                            <div key={day} style={{
+                              padding: '12px 16px',
+                              borderRadius: '10px',
+                              backgroundColor: '#F8FAFC',
+                              border: '1px solid #E2E8F0',
+                            }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: newDoctor.availability[day]?.length > 0 ? '8px' : '0' }}>
+                                <span style={{ fontSize: '14px', fontWeight: '600', color: '#1E293B' }}>{day}</span>
+                                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                  <select
+                                    id={`time-select-${day}`}
+                                    style={{
+                                      padding: '4px 8px', borderRadius: '6px', border: '1px solid #E2E8F0',
+                                      fontSize: '13px', color: '#1E293B', backgroundColor: 'white',
+                                    }}
+                                  >
+                                    {['9:00 AM','9:30 AM','10:00 AM','10:30 AM','11:00 AM','11:30 AM',
+                                      '12:00 PM','12:30 PM','1:00 PM','1:30 PM','2:00 PM','2:30 PM',
+                                      '3:00 PM','3:30 PM','4:00 PM','4:30 PM','5:00 PM','5:30 PM',
+                                      '6:00 PM','6:30 PM','7:00 PM','7:30 PM','8:00 PM'].map(t => (
+                                      <option key={t} value={t}>{t}</option>
+                                    ))}
+                                  </select>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      const sel = document.getElementById(`time-select-${day}`).value;
+                                      if (!newDoctor.availability[day]?.includes(sel)) {
+                                        setNewDoctor(p => ({
+                                          ...p,
+                                          availability: {
+                                            ...p.availability,
+                                            [day]: [...(p.availability[day] || []), sel].sort((a, b) => {
+                                              const toMin = (t) => { const [time, period] = t.split(' '); let [h, m] = time.split(':').map(Number); if (period === 'PM' && h !== 12) h += 12; if (period === 'AM' && h === 12) h = 0; return h * 60 + m; };
+                                              return toMin(a) - toMin(b);
+                                            }),
+                                          },
+                                        }));
+                                      }
+                                    }}
+                                    style={{
+                                      padding: '4px 10px', borderRadius: '6px', border: 'none',
+                                      backgroundColor: '#10B981', color: 'white', fontSize: '13px',
+                                      fontWeight: '600', cursor: 'pointer',
+                                    }}
+                                  >
+                                    + Add
+                                  </button>
+                                </div>
+                              </div>
+                              {newDoctor.availability[day]?.length > 0 && (
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                  {newDoctor.availability[day].map((slot, si) => (
+                                    <span key={si} style={{
+                                      padding: '3px 10px', borderRadius: '20px', fontSize: '12px',
+                                      fontWeight: '600', backgroundColor: '#EFF6FF', color: '#2563EB',
+                                      display: 'flex', alignItems: 'center', gap: '6px',
+                                    }}>
+                                      {slot}
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setNewDoctor(p => ({
+                                            ...p,
+                                            availability: {
+                                              ...p.availability,
+                                              [day]: p.availability[day].filter((_, i) => i !== si),
+                                            },
+                                          }));
+                                        }}
+                                        style={{
+                                          background: 'none', border: 'none', color: '#EF4444',
+                                          fontSize: '14px', cursor: 'pointer', padding: '0', lineHeight: '1',
+                                        }}
+                                      >
+                                        ×
+                                      </button>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="col-12">
                         <button onClick={handleAddDoctor} className="submit-btn" style={{ backgroundColor: '#10B981' }}>
                           Add Doctor
                         </button>
@@ -973,6 +1075,64 @@ function AdminPanel() {
                               <td style={tableCellStyle}>{new Date(review.createdAt).toLocaleDateString()}</td>
                               <td style={tableCellStyle}>
                                 <button onClick={() => handleDeleteReview(review._id)} style={actionBtn('#EF4444')}>
+                                  Delete
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+            {/* ── MESSAGES ── */}
+            {activeSection === 'messages' && (
+              <div>
+                <h2 style={{ fontSize: '28px', fontWeight: '800', color: '#1E293B', marginBottom: '24px' }}>
+                  Contact Messages ({messages.length})
+                </h2>
+                <div style={cardStyle}>
+                  {messages.length === 0 ? (
+                    <p style={{ textAlign: 'center', color: '#64748B', padding: '32px 0' }}>No messages yet</p>
+                  ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <thead>
+                          <tr>
+                            <th style={tableHeaderStyle}>Sender</th>
+                            <th style={tableHeaderStyle}>Subject</th>
+                            <th style={tableHeaderStyle}>Message</th>
+                            <th style={tableHeaderStyle}>Date</th>
+                            <th style={tableHeaderStyle}>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {messages.map(msg => (
+                            <tr key={msg._id}>
+                              <td style={tableCellStyle}>
+                                <span style={{ fontWeight: '600' }}>{msg.name}</span>
+                                <br />
+                                <span style={{ fontSize: '12px', color: '#64748B' }}>{msg.email}</span>
+                              </td>
+                              <td style={tableCellStyle}>
+                                <span style={{ fontWeight: '600', fontSize: '13px' }}>{msg.subject}</span>
+                              </td>
+                              <td style={{ ...tableCellStyle, maxWidth: '300px' }}>
+                                <p style={{ margin: 0, fontSize: '13px', color: '#475569', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                  {msg.message}
+                                </p>
+                              </td>
+                              <td style={tableCellStyle}>
+                                {new Date(msg.createdAt).toLocaleDateString()}
+                                <br />
+                                <span style={{ fontSize: '12px', color: '#94A3B8' }}>
+                                  {new Date(msg.createdAt).toLocaleTimeString()}
+                                </span>
+                              </td>
+                              <td style={tableCellStyle}>
+                                <button onClick={() => handleDeleteMessage(msg._id)} style={actionBtn('#EF4444')}>
                                   Delete
                                 </button>
                               </td>

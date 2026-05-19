@@ -36,10 +36,8 @@ useEffect(() => {
     });
 }, [id]);
 
-const avgRating = reviews.length
-  ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
-  : doctor?.rating;
-  
+const avgRating = doctor?.rating;
+const reviewCount = doctor?.reviews;
 
 
   if (loading) {
@@ -83,6 +81,12 @@ const avgRating = reviews.length
     setReviewRating(5);
     setSubmitted(true);
     setTimeout(() => setSubmitted(false), 3000);
+
+    // Re-fetch doctor to get updated rating and review count
+    fetch(`http://localhost:5000/api/doctors/${id}`)
+      .then((res) => res.json())
+      .then((data) => setDoctor(data));
+
   } catch (err) {
     console.log(err);
   }
@@ -128,8 +132,7 @@ const days = doctor?.availability ? Object.keys(doctor.availability) : [];
             </div>
             <div style={styles.statDivider} />
             <div style={styles.stat}>
-              <span style={styles.statNumber}>{reviews.length}</span>
-              <span style={styles.statLabel}>Reviews</span>
+              <span style={styles.statNumber}>{reviewCount}</span>              <span style={styles.statLabel}>Reviews</span>
             </div>
             <div style={styles.statDivider} />
             <div style={styles.stat}>
@@ -149,8 +152,7 @@ const days = doctor?.availability ? Object.keys(doctor.availability) : [];
           {/* Book button */}
           <button
             style={styles.bookBtn}
-            onClick={() => navigate(`/book?doctor=${encodeURIComponent(doctor.name)}`)}
-          >
+            onClick={() => navigate(`/book-appointment?doctor=${encodeURIComponent(doctor.name)}`)}          >
             Book Appointment with {doctor.name?.split(' ')[1]}
           </button>
         </div>

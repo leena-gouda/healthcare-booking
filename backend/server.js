@@ -18,6 +18,9 @@ const authRoutes = require('./routes/auth');
 const appointmentRoutes = require('./routes/appointments');
 const contactRoutes = require('./routes/contact');
 const adminRoutes = require('./routes/admin');
+const chatbotRoutes = require('./routes/chatbot');
+
+
 
 app.use('/api/doctors', doctorRoutes);
 app.use('/api/reviews', reviewRoutes);
@@ -27,6 +30,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/appointments', appointmentRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+
 
 app.get('/', (req, res) => {
   res.json({ message: 'Healthcare API is running!' });

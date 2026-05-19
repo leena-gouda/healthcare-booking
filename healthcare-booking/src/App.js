@@ -15,7 +15,7 @@ import Contact from './pages/Contact';
 import BookAppointment from './pages/BookAppointment';
 import AdminPanel from './pages/AdminPanel';
 import NotFound from './pages/NotFound';
-
+import Chatbot from './components/Chatbot';
 
 function App() {
   return (
@@ -37,6 +37,7 @@ function App() {
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      <Chatbot />
     </BrowserRouter>
   );
 }

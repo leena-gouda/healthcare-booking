@@ -19,6 +19,8 @@ function Login() {
     confirmPassword: '',
     dateOfBirth: '',
     gender: '',
+    phone: '',
+    bloodType: '',
   });
 
   const [staffRegisterData, setStaffRegisterData] = useState({
@@ -71,23 +73,17 @@ function Login() {
           }),
         });
         const data = await res.json();
-
         if (!res.ok) {
           setErrors({ email: data.message || 'Login failed' });
           setLoading(false);
           return;
         }
-
         localStorage.setItem('token', data.token);
         localStorage.setItem('patient', JSON.stringify(data.patient));
-
         setSuccessMsg('Login successful! Redirecting...');
         setTimeout(() => {
-          if (data.patient.role === 'admin') {
-            navigate('/admin');
-          } else {
-            navigate('/dashboard');
-          }
+          if (data.patient.role === 'admin') navigate('/admin');
+          else navigate('/dashboard');
         }, 1500);
       } catch (err) {
         setErrors({ email: 'Server error. Is the backend running?' });
@@ -100,7 +96,7 @@ function Login() {
     const newErrors = {};
     if (!registerData.fullName) newErrors.fullName = 'Full name is required';
     if (!registerData.email) newErrors.email = 'Email is required';
-    else if (!registerData.email.includes('@')) newErrors.email = 'Enter a valid email';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(registerData.email)) newErrors.email = 'Enter a valid email address';
     if (!registerData.password) newErrors.password = 'Password is required';
     else if (registerData.password.length < 6) newErrors.password = 'Password must be at least 6 characters';
     if (!registerData.confirmPassword) newErrors.confirmPassword = 'Please confirm your password';
@@ -121,16 +117,16 @@ function Login() {
             password: registerData.password,
             dateOfBirth: registerData.dateOfBirth,
             gender: registerData.gender,
+            phone: registerData.phone,
+            bloodType: registerData.bloodType,
           }),
         });
         const data = await res.json();
-
         if (!res.ok) {
           setErrors({ email: data.message || 'Registration failed' });
           setLoading(false);
           return;
         }
-
         localStorage.setItem('token', data.token);
         localStorage.setItem('patient', JSON.stringify(data.patient));
         setSuccessMsg('Account created! Redirecting...');
@@ -168,13 +164,11 @@ function Login() {
           }),
         });
         const data = await res.json();
-
         if (!res.ok) {
           setErrors({ adminSecret: data.message || 'Registration failed' });
           setLoading(false);
           return;
         }
-
         localStorage.setItem('token', data.token);
         localStorage.setItem('patient', JSON.stringify(data.patient));
         setSuccessMsg('Staff account created! Redirecting...');
@@ -259,11 +253,9 @@ function Login() {
         {/* FORM AREA */}
         <div className="login-form-area">
 
-          {successMsg && (
-            <div className="success-box">✅ {successMsg}</div>
-          )}
+          {successMsg && <div className="success-box">✅ {successMsg}</div>}
 
-          {/* ── LOGIN FORM (same for patient and staff) ── */}
+          {/* LOGIN FORM */}
           {activeTab === 'login' && (
             <div className="fade-in-up">
               <h2 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '24px', color: '#1E293B' }}>
@@ -272,68 +264,37 @@ function Login() {
 
               <div className="mb-3">
                 <label className="form-label-custom">Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="you@example.com"
-                  value={loginData.email}
-                  onChange={handleLoginChange}
-                  className={`form-input-custom ${errors.email ? 'form-input-error' : ''}`}
-                />
+                <input type="email" name="email" placeholder="you@example.com" value={loginData.email} onChange={handleLoginChange} className={`form-input-custom ${errors.email ? 'form-input-error' : ''}`} />
                 {errors.email && <p className="error-text">{errors.email}</p>}
               </div>
 
               <div className="mb-3">
                 <label className="form-label-custom">Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="••••••••"
-                  value={loginData.password}
-                  onChange={handleLoginChange}
-                  className={`form-input-custom ${errors.password ? 'form-input-error' : ''}`}
-                />
+                <input type="password" name="password" placeholder="••••••••" value={loginData.password} onChange={handleLoginChange} className={`form-input-custom ${errors.password ? 'form-input-error' : ''}`} />
                 {errors.password && <p className="error-text">{errors.password}</p>}
               </div>
 
               {!isStaffMode && (
                 <div className="d-flex align-items-center gap-2 mb-4">
-                  <input
-                    type="checkbox"
-                    name="rememberMe"
-                    id="rememberMe"
-                    checked={loginData.rememberMe}
-                    onChange={handleLoginChange}
-                    style={{ width: '16px', height: '16px', accentColor: '#2563EB' }}
-                  />
-                  <label htmlFor="rememberMe" style={{ fontSize: '14px', color: '#475569', cursor: 'pointer', margin: 0 }}>
-                    Remember me
-                  </label>
+                  <input type="checkbox" name="rememberMe" id="rememberMe" checked={loginData.rememberMe} onChange={handleLoginChange} style={{ width: '16px', height: '16px', accentColor: '#2563EB' }} />
+                  <label htmlFor="rememberMe" style={{ fontSize: '14px', color: '#475569', cursor: 'pointer', margin: 0 }}>Remember me</label>
                 </div>
               )}
 
-              <button
-                onClick={handleLoginSubmit}
-                className="submit-btn"
-                disabled={loading}
-                style={isStaffMode ? { backgroundColor: '#EF4444' } : {}}
-              >
+              <button onClick={handleLoginSubmit} className="submit-btn" disabled={loading} style={isStaffMode ? { backgroundColor: '#EF4444' } : {}}>
                 {loading ? 'Logging in...' : 'Login →'}
               </button>
 
               <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#64748B' }}>
                 Don't have an account?{' '}
-                <span
-                  onClick={() => switchTab('register')}
-                  style={{ color: isStaffMode ? '#EF4444' : '#2563EB', fontWeight: '700', cursor: 'pointer' }}
-                >
+                <span onClick={() => switchTab('register')} style={{ color: isStaffMode ? '#EF4444' : '#2563EB', fontWeight: '700', cursor: 'pointer' }}>
                   Register here
                 </span>
               </p>
             </div>
           )}
 
-          {/* ── PATIENT REGISTER FORM ── */}
+          {/* PATIENT REGISTER FORM */}
           {activeTab === 'register' && !isStaffMode && (
             <div className="fade-in-up">
               <h2 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '24px', color: '#1E293B' }}>
@@ -342,50 +303,30 @@ function Login() {
 
               <div className="mb-3">
                 <label className="form-label-custom">Full Name</label>
-                <input
-                  type="text"
-                  name="fullName"
-                  placeholder="John Doe"
-                  value={registerData.fullName}
-                  onChange={handleRegisterChange}
-                  className={`form-input-custom ${errors.fullName ? 'form-input-error' : ''}`}
-                />
+                <input type="text" name="fullName" placeholder="John Doe" value={registerData.fullName} onChange={handleRegisterChange} className={`form-input-custom ${errors.fullName ? 'form-input-error' : ''}`} />
                 {errors.fullName && <p className="error-text">{errors.fullName}</p>}
               </div>
 
               <div className="mb-3">
                 <label className="form-label-custom">Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="you@example.com"
-                  value={registerData.email}
-                  onChange={handleRegisterChange}
-                  className={`form-input-custom ${errors.email ? 'form-input-error' : ''}`}
-                />
+                <input type="email" name="email" placeholder="you@example.com" value={registerData.email} onChange={handleRegisterChange} className={`form-input-custom ${errors.email ? 'form-input-error' : ''}`} />
                 {errors.email && <p className="error-text">{errors.email}</p>}
+              </div>
+
+              <div className="mb-3">
+                <label className="form-label-custom">Phone Number <span style={{ color: '#94A3B8', fontWeight: '400' }}>(optional)</span></label>
+                <input type="tel" name="phone" placeholder="e.g. +20 1234567890" value={registerData.phone} onChange={handleRegisterChange} className="form-input-custom" />
               </div>
 
               <div className="row g-3 mb-3">
                 <div className="col-6">
                   <label className="form-label-custom">Date of Birth</label>
-                  <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={registerData.dateOfBirth}
-                    onChange={handleRegisterChange}
-                    className={`form-input-custom ${errors.dateOfBirth ? 'form-input-error' : ''}`}
-                  />
+                  <input type="date" name="dateOfBirth" value={registerData.dateOfBirth} onChange={handleRegisterChange} className={`form-input-custom ${errors.dateOfBirth ? 'form-input-error' : ''}`} />
                   {errors.dateOfBirth && <p className="error-text">{errors.dateOfBirth}</p>}
                 </div>
                 <div className="col-6">
                   <label className="form-label-custom">Gender</label>
-                  <select
-                    name="gender"
-                    value={registerData.gender}
-                    onChange={handleRegisterChange}
-                    className={`form-input-custom ${errors.gender ? 'form-input-error' : ''}`}
-                  >
+                  <select name="gender" value={registerData.gender} onChange={handleRegisterChange} className={`form-input-custom ${errors.gender ? 'form-input-error' : ''}`}>
                     <option value="">Select...</option>
                     <option value="male">Male</option>
                     <option value="female">Female</option>
@@ -397,28 +338,29 @@ function Login() {
               </div>
 
               <div className="mb-3">
+                <label className="form-label-custom">Blood Type <span style={{ color: '#94A3B8', fontWeight: '400' }}>(optional)</span></label>
+                <select name="bloodType" value={registerData.bloodType} onChange={handleRegisterChange} className="form-input-custom">
+                  <option value="">Select blood type...</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+              </div>
+
+              <div className="mb-3">
                 <label className="form-label-custom">Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="••••••••"
-                  value={registerData.password}
-                  onChange={handleRegisterChange}
-                  className={`form-input-custom ${errors.password ? 'form-input-error' : ''}`}
-                />
+                <input type="password" name="password" placeholder="••••••••" value={registerData.password} onChange={handleRegisterChange} className={`form-input-custom ${errors.password ? 'form-input-error' : ''}`} />
                 {errors.password && <p className="error-text">{errors.password}</p>}
               </div>
 
               <div className="mb-4">
                 <label className="form-label-custom">Confirm Password</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="••••••••"
-                  value={registerData.confirmPassword}
-                  onChange={handleRegisterChange}
-                  className={`form-input-custom ${errors.confirmPassword ? 'form-input-error' : ''}`}
-                />
+                <input type="password" name="confirmPassword" placeholder="••••••••" value={registerData.confirmPassword} onChange={handleRegisterChange} className={`form-input-custom ${errors.confirmPassword ? 'form-input-error' : ''}`} />
                 {errors.confirmPassword && <p className="error-text">{errors.confirmPassword}</p>}
               </div>
 
@@ -428,115 +370,61 @@ function Login() {
 
               <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#64748B' }}>
                 Already have an account?{' '}
-                <span
-                  onClick={() => switchTab('login')}
-                  style={{ color: '#2563EB', fontWeight: '700', cursor: 'pointer' }}
-                >
+                <span onClick={() => switchTab('login')} style={{ color: '#2563EB', fontWeight: '700', cursor: 'pointer' }}>
                   Login here
                 </span>
               </p>
             </div>
           )}
 
-          {/* ── STAFF REGISTER FORM ── */}
+          {/* STAFF REGISTER FORM */}
           {activeTab === 'register' && isStaffMode && (
             <div className="fade-in-up">
               <h2 style={{ fontSize: '22px', fontWeight: '800', marginBottom: '24px', color: '#1E293B' }}>
                 Staff Registration
               </h2>
 
-              <div style={{
-                backgroundColor: '#FEF2F2',
-                borderRadius: '12px',
-                padding: '14px 18px',
-                marginBottom: '20px',
-                fontSize: '13px',
-                color: '#991B1B',
-                borderLeft: '4px solid #EF4444',
-              }}>
+              <div style={{ backgroundColor: '#FEF2F2', borderRadius: '12px', padding: '14px 18px', marginBottom: '20px', fontSize: '13px', color: '#991B1B', borderLeft: '4px solid #EF4444' }}>
                 🔒 You need the staff authorization code to register. Contact your administrator if you don't have it.
               </div>
 
               <div className="mb-3">
                 <label className="form-label-custom">Full Name</label>
-                <input
-                  type="text"
-                  name="fullName"
-                  placeholder="Dr. Jane Smith"
-                  value={staffRegisterData.fullName}
-                  onChange={handleStaffRegisterChange}
-                  className={`form-input-custom ${errors.fullName ? 'form-input-error' : ''}`}
-                />
+                <input type="text" name="fullName" placeholder="Dr. Jane Smith" value={staffRegisterData.fullName} onChange={handleStaffRegisterChange} className={`form-input-custom ${errors.fullName ? 'form-input-error' : ''}`} />
                 {errors.fullName && <p className="error-text">{errors.fullName}</p>}
               </div>
 
               <div className="mb-3">
                 <label className="form-label-custom">Email Address</label>
-                <input
-                  type="email"
-                  name="email"
-                  placeholder="you@healthcare.com"
-                  value={staffRegisterData.email}
-                  onChange={handleStaffRegisterChange}
-                  className={`form-input-custom ${errors.email ? 'form-input-error' : ''}`}
-                />
+                <input type="email" name="email" placeholder="you@healthcare.com" value={staffRegisterData.email} onChange={handleStaffRegisterChange} className={`form-input-custom ${errors.email ? 'form-input-error' : ''}`} />
                 {errors.email && <p className="error-text">{errors.email}</p>}
               </div>
 
               <div className="mb-3">
                 <label className="form-label-custom">Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  placeholder="••••••••"
-                  value={staffRegisterData.password}
-                  onChange={handleStaffRegisterChange}
-                  className={`form-input-custom ${errors.password ? 'form-input-error' : ''}`}
-                />
+                <input type="password" name="password" placeholder="••••••••" value={staffRegisterData.password} onChange={handleStaffRegisterChange} className={`form-input-custom ${errors.password ? 'form-input-error' : ''}`} />
                 {errors.password && <p className="error-text">{errors.password}</p>}
               </div>
 
               <div className="mb-3">
                 <label className="form-label-custom">Confirm Password</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  placeholder="••••••••"
-                  value={staffRegisterData.confirmPassword}
-                  onChange={handleStaffRegisterChange}
-                  className={`form-input-custom ${errors.confirmPassword ? 'form-input-error' : ''}`}
-                />
+                <input type="password" name="confirmPassword" placeholder="••••••••" value={staffRegisterData.confirmPassword} onChange={handleStaffRegisterChange} className={`form-input-custom ${errors.confirmPassword ? 'form-input-error' : ''}`} />
                 {errors.confirmPassword && <p className="error-text">{errors.confirmPassword}</p>}
               </div>
 
               <div className="mb-4">
                 <label className="form-label-custom">🔑 Staff Authorization Code</label>
-                <input
-                  type="password"
-                  name="adminSecret"
-                  placeholder="Enter the code provided by your administrator"
-                  value={staffRegisterData.adminSecret}
-                  onChange={handleStaffRegisterChange}
-                  className={`form-input-custom ${errors.adminSecret ? 'form-input-error' : ''}`}
-                />
+                <input type="password" name="adminSecret" placeholder="Enter the code provided by your administrator" value={staffRegisterData.adminSecret} onChange={handleStaffRegisterChange} className={`form-input-custom ${errors.adminSecret ? 'form-input-error' : ''}`} />
                 {errors.adminSecret && <p className="error-text">{errors.adminSecret}</p>}
               </div>
 
-              <button
-                onClick={handleStaffRegisterSubmit}
-                className="submit-btn"
-                disabled={loading}
-                style={{ backgroundColor: '#EF4444' }}
-              >
+              <button onClick={handleStaffRegisterSubmit} className="submit-btn" disabled={loading} style={{ backgroundColor: '#EF4444' }}>
                 {loading ? 'Creating staff account...' : 'Register as Staff →'}
               </button>
 
               <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '14px', color: '#64748B' }}>
                 Already have a staff account?{' '}
-                <span
-                  onClick={() => switchTab('login')}
-                  style={{ color: '#EF4444', fontWeight: '700', cursor: 'pointer' }}
-                >
+                <span onClick={() => switchTab('login')} style={{ color: '#EF4444', fontWeight: '700', cursor: 'pointer' }}>
                   Login here
                 </span>
               </p>

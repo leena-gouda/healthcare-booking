@@ -1,3 +1,4 @@
+import { useTheme } from '../ThemeContext';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,6 +16,7 @@ function Dashboard() {
   const [profileMsgType, setProfileMsgType] = useState('');
 
   const token = localStorage.getItem('token');
+  const { darkMode } = useTheme();
 
   useEffect(() => {
     if (!token) {
@@ -141,7 +143,6 @@ function Dashboard() {
         { label: 'Cancelled', key: 'cancelled', done: true, isCancelled: true },
       ];
     }
-    const statusOrder = { booked: 0, upcoming: 1, completed: 2 };
     const currentIdx = status === 'completed' ? 2 : 1;
     return steps.map((s, i) => ({ ...s, done: i <= currentIdx }));
   };
@@ -163,18 +164,18 @@ function Dashboard() {
     padding: '12px 16px',
     fontSize: '12px',
     fontWeight: '700',
-    color: '#64748B',
+    color: darkMode ? '#94A3B8' : '#64748B',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
-    borderBottom: '2px solid #F1F5F9',
+    borderBottom: `2px solid ${darkMode ? '#334155' : '#F1F5F9'}`,
     textAlign: 'left',
   };
 
   const tableCellStyle = {
     padding: '14px 16px',
     fontSize: '14px',
-    color: '#1E293B',
-    borderBottom: '1px solid #F8FAFC',
+    color: darkMode ? '#F1F5F9' : '#1E293B',
+    borderBottom: `1px solid ${darkMode ? '#334155' : '#F8FAFC'}`,
   };
 
   const statusBadge = (status) => ({
@@ -195,31 +196,31 @@ function Dashboard() {
     width: '100%',
     padding: '10px 14px',
     borderRadius: '10px',
-    border: '1.5px solid #E2E8F0',
+    border: `1.5px solid ${darkMode ? '#334155' : '#E2E8F0'}`,
     fontSize: '14px',
-    color: '#1E293B',
+    color: darkMode ? '#F1F5F9' : '#1E293B',
     outline: 'none',
     transition: 'border-color 0.2s',
-    backgroundColor: '#FAFBFC',
+    backgroundColor: darkMode ? '#0F172A' : '#FAFBFC',
   };
 
   const labelStyle = {
     fontSize: '13px',
     fontWeight: '600',
-    color: '#64748B',
+    color: darkMode ? '#94A3B8' : '#64748B',
     marginBottom: '6px',
     display: 'block',
   };
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#F8FAFC' }}>
+    <div style={{ minHeight: '100vh', backgroundColor: darkMode ? '#0F172A' : '#F8FAFC' }}>
       <div className="container py-4">
         <div className="row g-4">
 
           {/* SIDEBAR */}
           <div className="col-lg-3">
             <div style={{
-              backgroundColor: 'white',
+              backgroundColor: darkMode ? '#1E293B' : 'white',
               borderRadius: '20px',
               padding: '28px 20px',
               boxShadow: '0 2px 12px rgba(0,0,0,0.06)',

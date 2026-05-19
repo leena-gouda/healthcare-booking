@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTheme } from '../ThemeContext';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 function Navbar() {
@@ -6,6 +7,7 @@ function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const { darkMode, setDarkMode } = useTheme();
   const token = localStorage.getItem('token');
   const patient = JSON.parse(localStorage.getItem('patient') || 'null');
 
@@ -25,6 +27,95 @@ function Navbar() {
     { label: 'FAQ', path: '/faq' },
     { label: 'About', path: '/about' },
   ];
+
+  const styles = {
+    nav: {
+      backgroundColor: darkMode ? '#0F172A' : '#ffffff',
+      borderBottom: `1px solid ${darkMode ? '#334155' : '#E2E8F0'}`,
+      position: 'sticky',
+      top: 0,
+      zIndex: 1000,
+    },
+    container: {
+      maxWidth: '1200px',
+      margin: '0 auto',
+      padding: '0 24px',
+      height: '68px',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    logo: {
+      fontSize: '22px',
+      fontWeight: '700',
+      color: '#2563EB',
+      textDecoration: 'none',
+    },
+    desktopLinks: {
+      display: 'flex',
+      gap: '8px',
+      alignItems: 'center',
+    },
+    link: {
+      padding: '8px 14px',
+      borderRadius: '8px',
+      color: darkMode ? '#F1F5F9' : '#1E293B',
+      textDecoration: 'none',
+      fontSize: '15px',
+      fontWeight: '500',
+      transition: 'background 0.2s',
+    },
+    activeLink: {
+      backgroundColor: darkMode ? '#1E3A5F' : '#EFF6FF',
+      color: '#2563EB',
+    },
+    rightButtons: {
+      display: 'flex',
+      gap: '10px',
+      alignItems: 'center',
+    },
+    loginBtn: {
+      padding: '8px 18px',
+      borderRadius: '8px',
+      border: '1.5px solid #2563EB',
+      color: '#2563EB',
+      textDecoration: 'none',
+      fontSize: '14px',
+      fontWeight: '600',
+    },
+    bookBtn: {
+      padding: '8px 18px',
+      borderRadius: '8px',
+      backgroundColor: '#2563EB',
+      color: '#ffffff',
+      textDecoration: 'none',
+      fontSize: '14px',
+      fontWeight: '600',
+    },
+    hamburger: {
+      display: 'none',
+      background: 'none',
+      border: 'none',
+      fontSize: '24px',
+      cursor: 'pointer',
+      color: darkMode ? '#F1F5F9' : '#1E293B',
+    },
+    mobileMenu: {
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '12px 24px 20px',
+      borderTop: `1px solid ${darkMode ? '#334155' : '#E2E8F0'}`,
+      backgroundColor: darkMode ? '#0F172A' : '#ffffff',
+    },
+    mobileLink: {
+      padding: '12px 0',
+      color: darkMode ? '#F1F5F9' : '#1E293B',
+      textDecoration: 'none',
+      fontSize: '16px',
+      fontWeight: '500',
+      borderBottom: `1px solid ${darkMode ? '#334155' : '#F1F5F9'}`,
+    },
+  };
 
   return (
     <nav style={styles.nav}>
@@ -50,6 +141,24 @@ function Navbar() {
             </Link>
           ))}
         </div>
+
+        {/* Dark mode toggle */}
+        <button
+          onClick={() => setDarkMode(!darkMode)}
+          style={{
+            background: 'none',
+            border: `1.5px solid ${darkMode ? '#334155' : '#E2E8F0'}`,
+            borderRadius: '8px',
+            padding: '6px 12px',
+            cursor: 'pointer',
+            fontSize: '18px',
+            marginRight: '8px',
+            transition: 'all 0.2s',
+          }}
+          title="Toggle dark mode"
+        >
+          {darkMode ? '☀️' : '🌙'}
+        </button>
 
         {/* Right side buttons */}
         <div style={styles.rightButtons}>
@@ -161,94 +270,5 @@ function Navbar() {
     </nav>
   );
 }
-
-const styles = {
-  nav: {
-    backgroundColor: '#ffffff',
-    borderBottom: '1px solid #E2E8F0',
-    position: 'sticky',
-    top: 0,
-    zIndex: 1000,
-  },
-  container: {
-    maxWidth: '1200px',
-    margin: '0 auto',
-    padding: '0 24px',
-    height: '68px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  logo: {
-    fontSize: '22px',
-    fontWeight: '700',
-    color: '#2563EB',
-    textDecoration: 'none',
-  },
-  desktopLinks: {
-    display: 'flex',
-    gap: '8px',
-    alignItems: 'center',
-  },
-  link: {
-    padding: '8px 14px',
-    borderRadius: '8px',
-    color: '#1E293B',
-    textDecoration: 'none',
-    fontSize: '15px',
-    fontWeight: '500',
-    transition: 'background 0.2s',
-  },
-  activeLink: {
-    backgroundColor: '#EFF6FF',
-    color: '#2563EB',
-  },
-  rightButtons: {
-    display: 'flex',
-    gap: '10px',
-    alignItems: 'center',
-  },
-  loginBtn: {
-    padding: '8px 18px',
-    borderRadius: '8px',
-    border: '1.5px solid #2563EB',
-    color: '#2563EB',
-    textDecoration: 'none',
-    fontSize: '14px',
-    fontWeight: '600',
-  },
-  bookBtn: {
-    padding: '8px 18px',
-    borderRadius: '8px',
-    backgroundColor: '#2563EB',
-    color: '#ffffff',
-    textDecoration: 'none',
-    fontSize: '14px',
-    fontWeight: '600',
-  },
-  hamburger: {
-    display: 'none',
-    background: 'none',
-    border: 'none',
-    fontSize: '24px',
-    cursor: 'pointer',
-    color: '#1E293B',
-  },
-  mobileMenu: {
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '12px 24px 20px',
-    borderTop: '1px solid #E2E8F0',
-    backgroundColor: '#ffffff',
-  },
-  mobileLink: {
-    padding: '12px 0',
-    color: '#1E293B',
-    textDecoration: 'none',
-    fontSize: '16px',
-    fontWeight: '500',
-    borderBottom: '1px solid #F1F5F9',
-  },
-};
 
 export default Navbar;
